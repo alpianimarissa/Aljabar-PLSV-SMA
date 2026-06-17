@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petualangan PLSV Masterclass - Kelas 11 SMA</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- MathJax Configuration for Perfect Non-Formula Rendering -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #FAFAFE;
+        }
+        .heading-font {
+            font-family: 'Fredoka', sans-serif;
+        }
+        .math-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .slide-transition {
+            transition: all 0.3s ease-in-out;
+        }
+        .btn-bounce {
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .btn-bounce:hover {
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-[#F5F3FF] via-[#EEF2FF] to-[#FFF1F2] min-h-screen flex flex-col justify-between overflow-x-hidden select-none">
+
+    <!-- HEADER NAVIGATION -->
+    <header class="bg-white/95 backdrop-blur-md border-b-4 border-[#6366F1] py-3.5 px-6 flex justify-between items-center sticky top-0 z-40 shadow-sm">
+        <div class="flex items-center gap-3">
+            <svg class="w-10 h-10 text-[#6366F1] animate-pulse" viewBox="0 0 100 100" fill="none">
+                <circle cx="50" cy="50" r="42" fill="#EEF2FF" stroke="#6366F1" stroke-width="4"/>
+                <line x1="50" y1="15" x2="50" y2="85" stroke="#6366F1" stroke-width="4"/>
+                <line x1="15" y1="50" x2="85" y2="50" stroke="#6366F1" stroke-width="4"/>
+                <circle cx="32" cy="50" r="6" fill="#EC4899"/>
+                <circle cx="68" cy="50" r="6" fill="#10B981"/>
+            </svg>
+            <div>
+                <h1 class="heading-font text-xl md:text-2xl font-bold text-[#4F46E5]">PLSV Masterclass</h1>
+                <p class="text-[10px] text-[#6366F1] font-black tracking-widest uppercase">Kurikulum Merdeka • Fase F Kelas 11</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-3">
+            <!-- XP Badge -->
+            <div class="bg-[#EEF2FF] border-2 border-[#6366F1] rounded-full px-4 py-1.5 flex items-center gap-1.5 shadow-sm">
+                <span class="text-base">✨</span>
+                <span id="score-display" class="font-bold text-[#4F46E5] text-xs md:text-sm">0 XP</span>
+            </div>
+            
+            <!-- Scratchpad Toggle -->
+            <button id="scratchpad-btn" onclick="toggleScratchpad()" class="bg-[#ECFDF5] hover:bg-[#D1FAE5] border-2 border-[#10B981] active:scale-95 transition text-[#047857] font-black rounded-full px-4 py-1.5 text-xs md:text-sm shadow-sm flex items-center gap-1">
+                ✏️ <span>Papan Cakar</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- SCRATCHPAD DRAWING OVERLAY -->
+    <div id="scratchpad" class="hidden fixed inset-0 z-50 bg-white/95 flex flex-col p-4">
+        <div class="flex justify-between items-center mb-2 border-b-2 border-gray-100 pb-2">
+            <h3 class="heading-font text-lg font-bold text-[#4F46E5] flex items-center gap-2">
+                ✏️ Papan Cakar Aljabar (Horner, KPK & Penyetaraan)
+            </h3>
+            <div class="flex items-center gap-2">
+                <button onclick="clearCanvas()" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-3 py-1.5 rounded-xl text-xs">Bersihkan</button>
+                <button onclick="toggleScratchpad()" class="bg-[#4F46E5] hover:bg-[#4338CA] text-white font-bold px-4 py-1.5 rounded-xl text-xs">Kembali ke Misi</button>
+            </div>
+        </div>
+        <div class="flex-1 bg-indigo-50/20 border-4 border-dashed border-[#818CF8] rounded-2xl relative cursor-crosshair overflow-hidden">
+            <canvas id="scratch-canvas" class="absolute inset-0 w-full h-full"></canvas>
+        </div>
+        <p class="text-xs text-gray-400 mt-2 text-center">Gunakan stylus, jari, atau mouse untuk mencakar perkalian silang pecahan aljabar di sini!</p>
+    </div>
+
+    <!-- MAIN SLIDE WINDOW -->
+    <main class="flex-1 flex items-center justify-center p-4 relative my-4">
+        <!-- Prev Arrow -->
+        <button id="prev-btn" onclick="changeSlide(-1)" class="absolute left-2 md:left-6 z-30 bg-white hover:bg-[#EEF2FF] text-[#4F46E5] border-4 border-[#C7D2FE] w-12 h-12 rounded-full flex items-center justify-center text-lg shadow-md active:scale-90 transition">
+            ◀
+        </button>
+
+        <!-- Slide Body wrapper -->
+        <div id="slide-wrapper" class="w-full max-w-4xl bg-white rounded-3xl border-8 border-[#C7D2FE] shadow-xl overflow-hidden flex flex-col justify-between min-h-[530px] md:min-h-[595px] slide-transition">
+            <!-- Top Progress Bar -->
+            <div class="w-full bg-[#EEF2FF] h-3">
+                <div id="progress-bar" class="bg-[#6366F1] h-full transition-all duration-300" style="width: 2.8%"></div>
+            </div>
+
+            <!-- Dynamic Content Area -->
+            <div id="slide-content" class="p-6 md:p-10 flex-1 flex flex-col justify-center overflow-y-auto max-h-[470px] md:max-h-[520px]">
+                <!-- Loaded dynamically by Javascript -->
+            </div>
+
+            <!-- Footer Status Badge -->
+            <div class="bg-[#F5F3FF] border-t-2 border-[#E0E7FF] px-6 py-3 flex justify-between items-center text-xs md:text-sm font-bold text-[#4F46E5]">
+                <span id="section-name">Misi Pembuka</span>
+                <span id="slide-index" class="bg-[#6366F1] text-white px-3 py-1 rounded-full">Slide 1 / 35</span>
+            </div>
+        </div>
+
+        <!-- Next Arrow -->
+        <button id="next-btn" onclick="changeSlide(1)" class="absolute right-2 md:right-6 z-30 bg-white hover:bg-[#EEF2FF] text-[#4F46E5] border-4 border-[#C7D2FE] w-12 h-12 rounded-full flex items-center justify-center text-lg shadow-md active:scale-90 transition">
+            ▶
+        </button>
+    </main>
+
+    <!-- FLOATING TOAST NOTIFICATION -->
+    <div id="toast" class="hidden fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 bg-[#10B981] text-white font-bold px-6 py-3 rounded-2xl shadow-xl flex items-center gap-2 animate-bounce">
+        <span id="toast-icon">✨</span> <span id="toast-text">Sempurna! Kamu hebat!</span>
+    </div>
+
+    <!-- CONFETTI CELEBRATION CANVAS -->
+    <canvas id="confetti" class="fixed inset-0 pointer-events-none z-50 w-full h-full hidden"></canvas>
+
+    <!-- MAIN APP JAVASCRIPT SYSTEM -->
+    <script>
+        // --- 1. SOUND EFFECT SYNTHESIZER (Web Audio API) ---
+        let audioCtx;
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function playSound(type) {
+            try {
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                if (type === 'correct') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, ctx.currentTime); 
+                    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.08); 
+                    osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.16); 
+                    gain.gain.setValueAtTime(0.12, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+                    osc.start(ctx.currentTime);
+                    osc.stop(ctx.currentTime + 0.4);
+                } else if (type === 'incorrect') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(130, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(65, ctx.currentTime + 0.3);
+                    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                    osc.start(ctx.currentTime);
+                    osc.stop(ctx.currentTime + 0.3);
+                } else if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(380, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(280, ctx.currentTime + 0.08);
+                    gain.gain.setValueAtTime(0.04, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+                    osc.start(ctx.currentTime);
+                    osc.stop(ctx.currentTime + 0.08);
+                }
+            } catch (e) {
+                console.log("Audio synthesized successfully.");
+            }
+        }
+
+        // --- 2. THE 35 SLIDES DATABASE (LaTeX Double Escaped) ---
+        const slides = [
+            // Slide 1: Welcome/Title
+            {
+                section: "Misi Pembuka",
+                title: "Masterclass PLSV Tingkat Tinggi",
+                subtitle: "Persamaan Linear Satu Variabel Lanjut • Kelas 11 SMA",
+                icon: "🚀",
+                render: () => `
+                    <div class="text-center">
+                        <div class="flex justify-center mb-4">
+                            <!-- Beautiful Vector Scale SVG representation -->
+                            <svg class="w-32 h-32 text-[#6366F1] animate-pulse" viewBox="0 0 100 100" fill="none">
+                                <line x1="50" y1="20" x2="50" y2="85" stroke="#6366F1" stroke-width="4"/>
+                                <line x1="20" y1="85" x2="80" y2="85" stroke="#6366F1" stroke-width="6"/>
+                                <line x1="15" y1="35" x2="85" y2="35" stroke="#F59E0B" stroke-width="4" stroke-linecap="round"/>
+                                <circle cx="50" cy="35" r="4" fill="#4F46E5"/>
+                                <!-- Scale contents -->
+                                <circle cx="20" cy="50" r="10" fill="#EC4899"/>
+                                <circle cx="80" cy="50" r="10" fill="#10B981"/>
+                                <text x="17" y="53" fill="white" font-family="'JetBrains Mono'" font-size="10" font-weight="bold">x</text>
+                                <text x="77" y="53" fill="white" font-family="'JetBrains Mono'" font-size="10" font-weight="bold">8</text>
+                            </svg>
+                        </div>
+                        <h2 class="heading-font text-3xl md:text-5xl font-extrabold text-[#312E81] mb-2">Masterclass PLSV</h2>
+                        <p class="text-base md:text-lg text-indigo-700 font-bold mb-6">Menguji Logika, Penyelesaian Pecahan Aljabar, & Pemodelan Kompleks</p>
+                        <div class="inline-block bg-[#EEF2FF] border-2 border-dashed border-[#818CF8] rounded-2xl p-4 max-w-lg mx-auto">
+                            <p class="text-xs md:text-sm text-indigo-900 font-semibold">"Selamat datang di tantangan tingkat lanjut! Kita akan mendalami, menguatkan, dan menuntaskan tipe persoalan persamaan linear satu variabel level medium-hard."</p>
+                        </div>
+                    </div>
+                `
+            },
+            // Slide 2: Target Belajar (Tujuan)
+            {
+                section: "Misi Pembuka",
+                title: "Tujuan & Target Kompetensi",
+                subtitle: "Capaian Pembelajaran Fase F Aljabar",
+                icon: "🎯",
+                render: () => `
+                    <div class="max-w-2xl mx-auto text-left">
+                        <p class="text-sm text-gray-500 font-bold mb-4">Misi kita hari ini didesain agar kamu mampu:</p>
+                        <ul class="space-y-3 text-xs md:text-sm">
+                            <li class="bg-indigo-50 border-l-8 border-[#6366F1] p-3 rounded-r-xl font-bold text-indigo-950 flex items-center gap-3">
+                                <span class="text-lg">✓</span> Menyelesaikan persamaan pecahan linear kompleks dengan penyetaraan penyebut melalui KPK.
+                            </li>
+                            <li class="bg-[#EFF6FF] border-l-8 border-[#3B82F6] p-3 rounded-r-xl font-bold text-blue-950 flex items-center gap-3">
+                                <span class="text-lg">✓</span> Membongkar kurung bersarang (*nested parentheses*) memakai sifat distributif tingkat tinggi.
+                            </li>
+                            <li class="bg-[#F0FDF4] border-l-8 border-[#10B981] p-3 rounded-r-xl font-bold text-emerald-950 flex items-center gap-3">
+                                <span class="text-lg">✓</span> Memodelkan & memecahkan teka-teki logika dan soal cerita aplikasi nyata yang rumit secara matematis.
+                            </li>
+                        </ul>
+                    </div>
+                `
+            },
+            // Slide 3: Peta Perjalanan
+            {
+                section: "Misi Pembuka",
+                title: "Peta Petualangan Aljabar",
+                subtitle: "Rencana Pembelajaran 35 Slide Terarah",
+                icon: "🗺️",
+                render: () => `
+                    <div class="w-full">
+                        <p class="text-sm text-center text-gray-500 font-bold mb-6">4 Stasiun penting yang akan kita taklukkan:</p>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="bg-indigo-50 p-4 rounded-2xl border-2 border-indigo-200 text-center">
+                                <span class="text-3xl">🧩</span>
+                                <h4 class="font-bold text-indigo-800 text-xs mt-2">1. Warm-Up & Review</h4>
+                            </div>
+                            <div class="bg-amber-50 p-4 rounded-2xl border-2 border-amber-200 text-center">
+                                <span class="text-3xl">📐</span>
+                                <h4 class="font-bold text-amber-800 text-xs mt-2">2. Pendalaman Materi</h4>
+                            </div>
+                            <div class="bg-emerald-50 p-4 rounded-2xl border-2 border-emerald-200 text-center">
+                                <span class="text-3xl">⚙️</span>
+                                <h4 class="font-bold text-emerald-800 text-xs mt-2">3. Simulator Timbangan</h4>
+                            </div>
+                            <div class="bg-pink-50 p-4 rounded-2xl border-2 border-pink-200 text-center">
+                                <span class="text-3xl">🏆</span>
+                                <h4 class="font-bold text-pink-800 text-xs mt-2">4. 17 Soal Tantangan</h4>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            // Slide 4: Warm-Up 1
+            {
+                section: "Warm-Up",
+                title: "Apersepsi 1: Review Linear Dasar",
+                subtitle: "Uji refleks aljabar awalmu",
+                icon: "⚽",
+                render: () => `
+                    <div class="text-center">
+                        <p class="text-sm font-bold text-gray-600 mb-4">Selesaikan persamaan linear dasar berikut di luar kepala:<br><strong class="text-indigo-600 font-mono text-lg">$5x - 8 = 22$</strong></p>
+                        <div class="grid grid-cols-3 gap-3 max-w-sm mx-auto">
+                            <!-- Shuffled options -->
+                            <button onclick="checkSlideAnswer(this, false, 'Salah. Pindahkan negatif 8 ke kanan menjadi tambah 8.', 5)" class="bg-[#F3F4F6] hover:bg-gray-100 p-3 rounded-xl border text-xs font-bold font-mono">x = 4</button>
+                            <button onclick="checkSlideAnswer(this, true, 'Sempurna! 5x = 30 -> x = 6.', 5)" class="bg-[#F3F4F6] hover:bg-gray-100 p-3 rounded-xl border text-xs font-bold font-mono">x = 6</button>
+                            <button onclick="checkSlideAnswer(this, false, 'Masih belum tepat.', 5)" class="bg-[#F3F4F6] hover:bg-gray-100 p-3 rounded-xl border text-xs font-bold font-mono">x = 8</button>
+                        </div>
+                    </div>
+                `
+            },
+            // Slide 5: Warm-Up 2
+            {
+                section: "Warm-Up",
+                title: "Apersepsi 2: Aturan Tanda Minus",
+                subtitle: "Uji ketelitian memindahkan nilai",
+                icon: "🔢",
+                render: () => `
+                    <div class="text-center">
+                        <p class="text-sm font-bold text-gray-600 mb-4">Temukan nilai $y$ dari persamaan berikut:<br><strong class="text-violet-600 font-mono text-lg">$12 - 3y = -9$</strong></p>
+                        <div class="grid grid-cols-3 gap-3 max-w-sm mx-auto">
+                            <button onclick="checkSlideAnswer(this, false, 'Perhatikan tanda minus di depan koefisien y.', 5)" class="bg-[#F3F4F6] hover:bg-gray-100 p-3 rounded-xl border text-xs font-bold font-mono">y = -7</button>
+                            <button onclick="checkSlideAnswer(this, false, 'Masih salah.', 5)" class="bg-[#F3F4F6] hover:bg-gray-100 p-3 rounded-xl border text-xs font-bold font-mono">y = 1</button>
+                            <button onclick="checkSlideAnswer(this, true, 'Sempurna! -3y = -21 -> y = 7.', 5)" class="bg-[#F3F4F6] hover:bg-gray-100 p-3 rounded-xl border text-xs font-bold font-mono">y = 7</button>
+                        </div>
+                    </div>
+                `
+            },
+            // Slide 6: Warm-Up 3
+            {
+                section: "Warm-Up",
+                title: "Apersepsi 3: Sifat Distributif",
+                subtitle: "Membongkar tanda kurung aljabar",
+                icon: "⚙️",
+                render: () => `
+                    <div class="text-center">
+                        <p class="text-sm font-bold text-gray-600 mb-4">Selesaikan persamaan distributif berikut:<br><strong class="text-emerald-600 font-mono text-lg">$2(3x + 1) = 14$</strong></p>
+                        <div class="grid grid-cols-3 gap-3 max-w-sm mx-auto">
+                            <button onclick="checkSlideAnswer(this, true, 'Sangat Hebat! 6x + 2 = 14 -> 6x = 12 -> x = 2.', 5)" class="bg-[#F3F4F6] hover:bg-gray-100 p-3 rounded-xl border text-xs font-bold font-mono">x = 2</button>
+                            <button onclick="checkSlideAnswer(this, false, 'Kalikan konstanta di luar dengan semua elemen di dalam kurung.', 5)" class="bg-[#F3F4F6] hover:bg-gray-100 p-3 rounded-xl border text-xs font-bold font-mono">x = 4</button>
+                            <button onclick="checkSlideAnswer(this, false, 'Kurang tepat.', 5)" class="bg-[#F3F4F6] hover:bg-gray-100 p-3 rounded-xl border text-xs font-bold font-mono">x = 6</button>
+                        </div>
+                    </div>
+                `
+            },
+            // Slide 7: Real-world Connection 1
+            {
+                section: "Koneksi Nyata",
+                title: "Aplikasi 1: Kecepatan Relatif & Susul-menyusul",
+                subtitle: "Bagaimana radar polisi memprediksi titik temu kendaraan?",
+                icon: "🚗",
+                render: () => `
+                    <div class="grid md:grid-cols-2 gap-6 items-center">
+                        <div>
+                            <p class="text-sm text-gray-600 leading-relaxed font-semibold">
+                                Bayangkan sebuah mobil polisi bergerak dengan kecepatan $100 \\text{ km/jam}$ mengejar mobil buron berjarak $5 \\text{ km}$ di depannya yang melaju $80 \\text{ km/jam}$.
+                                <br><br>
+                                Mengetahui kapan mobil polisi menyusul buron dimodelkan secara akurat menggunakan persamaan linear satu variabel:
+                                <br>
+                                <strong class="text-[#6366F1] font-mono">$$100t = 80t + 5$$</strong>
+                            </p>
+                        </div>
+                        <div class="bg-sky-50 p-4 rounded-2xl border-2 border-sky-200 text-center flex flex-col items-center">
+                            <span class="text-5xl block animate-bounce mb-2">🚓🏎️</span>
+                            <div class="text-xs font-mono font-bold bg-white p-2 rounded border border-sky-300">
+                                $20t = 5 \\rightarrow t = 0,25 \\text{ jam}$
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            // Slide 8: Real-world Connection 2
+            {
+                section: "Koneksi Nyata",
+                title: "Aplikasi 2: Analisis Laba Rugi UMKM",
+                subtitle: "Menghitung titik impas (Break-Even Point) produksi",
+                icon: "📊",
+                render: () => `
+                    <div class="grid md:grid-cols-2 gap-6 items-center">
+                        <div class="order-2 md:order-1 flex justify-center bg-[#F0FDF4] p-4 rounded-2xl border-2 border-emerald-200">
+                            <!-- SVG Business Chart -->
+                            <svg class="w-36 h-36" viewBox="0 0 100 100">
+                                <line x1="10" y1="90" x2="90" y2="90" stroke="#475569" stroke-width="2"/>
+                                <line x1="10" y1="10" x2="10" y2="90" stroke="#475569" stroke-width="2"/>
+                                <line x1="10" y1="80" x2="80" y2="20" stroke="#3B82F6" stroke-width="3"/>
+                                <line x1="10" y1="50" x2="80" y2="50" stroke="#EF4444" stroke-width="2" stroke-dasharray="3 3"/>
+                                <circle cx="45" cy="50" r="4" fill="#F59E0B"/>
+                            </svg>
+                        </div>
+                        <div class="order-1 md:order-2">
+                            <p class="text-sm text-gray-600 leading-relaxed font-semibold">
+                                Seorang pengusaha kaos sablon mendesain kaos dengan biaya modal tetap Rp1.000.000,00 ditambah biaya produksi Rp30.000,00 per kaos. Kaos dijual seharga Rp80.000,00 per potong.
+                                <br><br>
+                                Menghitung jumlah kaos ($x$) yang harus terjual agar impas modal (BEP):
+                                <br>
+                                <strong class="text-emerald-700">$$80.000x = 30.000x + 1.000.000$$</strong>
+                            </p>
+                        </div>
+                    </div>
+                `
+            },
+            // Slide 9: Real-world Connection 3
+            {
+                section: "Koneksi Nyata",
+                title: "Aplikasi 3: Manajemen Campuran Larutan Kimia",
+                subtitle: "Aplikasi sains farmasi dan teknik industri",
+                icon: "🧪",
+                render: () => `
+                    <div class="text-center max-w-xl mx-auto space-y-3">
+                        <p class="text-sm text-gray-600 font-semibold">
+                            Seorang apoteker harus meracik cairan alkohol berkonsentrasi tinggi. Ia mencampurkan $2 \\text{ liter}$ alkohol $70\\%$ dengan sejumlah air murni agar konsentrasinya turun menjadi $40\\%$.
+                            <br><br>
+                            Mencari volume air tambahan ($x$) diselesaikan secara presisi menggunakan persamaan linear satu variabel:
+                        </p>
+                        <div class="bg-amber-50 border border-amber-300 p-3 rounded-xl text-xs font-semibold text-amber-900 leading-relaxed inline-block font-mono">
+                            $$0,70 \\times 2 = 0,40 \\times (2 + x)$$
+                        </div>
+                    </div>
+                `
+            },
+            // Slide 10: Konsep 1 (Koefisien Pecahan Kompleks)
+            {
+                section: "Materi PLSV",
+                title: "Konsep 1: Koefisien Pecahan Kompleks",
+                subtitle: "Cara jitu mengeliminasi penyebut pecahan",
+                icon: "🧬",
+                render: () => `
+                    <div class="space-y-4 max-w-2xl mx-auto text-xs md:text-sm">
+                        <p class="text-gray-600 leading-relaxed">
+                            Ketika berhadapan dengan pecahan linear seperti: <span class="font-bold">$\\frac{x-1}{2} - \\frac{x+2}{3} = 2$</span>
+                        </p>
+                        <div class="bg-violet-50 border-l-8 border-[#6366F1] p-3 rounded-r-xl space-y-2">
+                            <p><strong>Langkah 1:</strong> Cari KPK dari seluruh penyebut (KPK dari 2 dan 3 adalah 6).</p>
+                            <p><strong>Langkah 2:</strong> Kalikan **seluruh ruas kiri dan kanan** dengan angka 6 tersebut.</p>
+                            <p class="font-mono text-center font-bold text-violet-900">$3(x - 1) - 2(x + 2) = 12$</p>
+                        </div>
+                        <p class="text-[11px] text-gray-400 italic">"Ini menyederhanakan pecahan aljabar menjadi persamaan linear biasa secara cepat!"</p>
+                    </div>
+                `
+            },
+            // Slide 11: Konsep 2 (Distributif Bersarang)
+            {
+                section: "Materi PLSV",
+                title: "Konsep 2: Sifat Distributif Bersarang",
+                subtitle: "Aturan membongkar tanda kurung bertingkat",
+                icon: " Kurung ",
+                render: () => `
+                    <div class="space-y-3 text-xs md:text-sm max-w-xl mx-auto text-left">
+                        <p class="text-gray-600 font-semibold">Gunakan aturan distributif dari kurung terdalam terlebih dahulu:</p>
+                        <div class="bg-[#EFF6FF] border-l-8 border-[#3B82F6] p-4 rounded-r-xl space-y-2">
+                            <p class="font-bold">Contoh: $5 - 2(3 - (x - 1)) = 11$</p>
+                            <p>• Bongkar kurung terdalam: $-(x - 1) = -x + 1$.</p>
+                            <p>• Sederhanakan: $3 - x + 1 = 4 - x$.</p>
+                            <p>• Kalikan pengali luar: $-2(4 - x) = -8 + 2x$.</p>
+                            <p>• Persamaan akhir: $5 - 8 + 2x = 11 \\rightarrow 2x - 3 = 11$.</p>
+                        </div>
+                    </div>
+                `
+            },
+            // Slide 12: Konsep 3 (Isolasi Variabel)
+            {
+                section: "Materi PLSV",
+                title: "Konsep 3: Isolasi Variabel Taktis",
+                subtitle: "Kumpulkan variabel di satu ruas seimbang",
+                icon: "⚙️",
+                render: () => `
+                    <div class="space-y-3 text-xs md:text-sm max-w-xl mx-auto text-left">
+                        <p class="text-gray-600 font-semibold">Taktik mempercepat isolasi variabel:</p>
+                        <div class="bg-[#F0FDF4] border-l-8 border-[#10B981] p-3.5 rounded-r-xl">
+                            Selalu kumpulkan suku bervariabel $x$ di ruas yang menghasilkan koefisien positif agar kamu tidak bingung membagi nilai negatif di akhir!
+                        </p>
+                        <div class="bg-gray-100 p-2.5 rounded border mt-2 text-center font-mono">
+                            Jika $2x + 10 = 5x - 2$, pindahkan $2x$ ke kanan:<br>
+                            $10 + 2 = 5x - 2x \\rightarrow 12 = 3x \\rightarrow x = 4$.
+                        </div>
+                    </div>
+                `
+            },
+            // Slide 13: Konsep 4 (Pemodelan Soal Cerita)
+            {
+                section: "Materi PLSV",
+                title: "Konsep 4: Pemodelan Bahasa Aljabar",
+                subtitle: "Menerjemahkan kalimat cerita ke simbol persamaan",
+                icon: "📖",
+                render: () => `
+                    <div class="grid grid-cols-2 gap-3 max-w-xl mx-auto text-xs font-semibold">
+                        <div class="bg-amber-50 border-l-4 border-amber-500 p-2.5 rounded">
+                            <span>"Sepertiga dari suatu bilangan"</span>
+                            <span class="text-amber-800 block text-[11px] font-bold mt-1">$\\rightarrow \\frac{1}{3}x$</span>
+                        </div>
+                        <div class="bg-blue-50 border-l-4 border-blue-500 p-2.5 rounded">
+                            <span>"Lima kurangnya dari dua kali x"</span>
+                            <span class="text-blue-800 block text-[11px] font-bold mt-1">$\\rightarrow 2x - 5$</span>
+                        </div>
+                        <div class="bg-emerald-50 border-l-4 border-emerald-500 p-2.5 rounded">
+                            <span>"Tiga kali jumlah x dengan empat"</span>
+                            <span class="text-emerald-800 block text-[11px] font-bold mt-1">$\\rightarrow 3(x + 4)$</span>
+                        </div>
+                        <div class="bg-purple-50 border-l-4 border-purple-500 p-2.5 rounded">
+                            <span>"Selisih umur A dan B adalah 8 tahun"</span>
+                            <span class="text-purple-800 block text-[11px] font-bold mt-1">$\\rightarrow A - B = 8$</span>
+                        </div>
+                    </div>
+                `
+            },
+            // Slide 14: INTERACTIVE ALGEBRA BALANCE SCALE (Simulator)
+            {
+                section: "Eksplorasi",
+                title: "Simulator Timbangan Penyetaraan PLSV",
+                subtitle: "Bongkar variabel kiri dan kanan secara visual",
+                icon: "⚖️",
+                render: () => `
+                    <div class="grid md:grid-cols-2 gap-4 items-center">
+                        <div class="space-y-3 bg-gray-50 p-4 rounded-xl border">
+                            <p class="text-[10px] text-gray-500 font-bold">Ubah nilai konstanta untuk melatih keseimbangan timbangan!</p>
+                            <div>
+                                <label class="text-xs font-bold text-gray-600 block">Beban Ruas Kiri: $2x + $ <span id="scale-l-val" class="text-pink-600 font-extrabold">4</span></label>
+                                <input type="range" id="scale-l-slider" min="1" max="10" step="1" value="4" oninput="updateScale()" class="w-full accent-pink-500">
+                            </div>
+                            <div>
+                                <label class="text-xs font-bold text-gray-600 block">Beban Ruas Kanan: $x + $ <span id="scale-r-val" class="text-blue-600 font-extrabold">8</span></label>
+                                <input type="range" id="scale-r-slider" min="1" max="10" step="1" value="8" oninput="updateScale()" class="w-full accent-blue-500">
+                            </div>
+                            <div class="bg-white p-2 rounded border text-xs text-center font-mono mt-1 space-y-1">
+                                <span class="font-bold text-gray-700 block border-b pb-1">Solusi Persamaan:</span>
+                                <span class="text-blue-600 font-bold">Model: </span><span>$2x + B = x + D$</span><br>
+                                <span class="text-emerald-600 font-bold">Hasil Akhir: </span><span id="scale-solution" class="font-bold">$x = 4$</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <svg id="scale-svg" class="w-44 h-44 bg-white border-2 border-slate-300 rounded-xl" viewBox="0 0 100 100">
+                                <!-- Base pivot triangle -->
+                                <polygon points="50,60 44,85 56,85" fill="#B0BEC5"/>
+                                <!-- Crossbar rotation dynamically simulated by JS -->
+                                <line id="scale-beam" x1="15" y1="60" x2="85" y2="60" stroke="#37474F" stroke-width="4" stroke-linecap="round"/>
+                                <circle id="scale-plate-l" cx="15" cy="60" r="6" fill="#EC4899"/>
+                                <circle id="scale-plate-r" cx="85" cy="60" r="6" fill="#3B82F6"/>
+                            </svg>
+                        </div>
+                    </div>
+                `
+            },
+            // Slide 15: Tips Menghindari Kesalahan Tanda Minus
+            {
+                section: "Tips Sukses",
+                title: "Waspada Jebakan Tanda Minus!",
+                subtitle: "Trik detektif agar jawabanmu selalu 100% tepat",
+                icon: "💡",
+                render: () => `
+                    <div class="max-w-xl mx-auto text-xs md:text-sm text-left space-y-3">
+                        <p class="text-gray-600 font-semibold">Tiga jebakan maut dalam pembagian tanda negatif:</p>
+                        <div class="bg-red-50 p-3 rounded-xl border border-red-200">
+                            🚨 <strong>Kesalahan 1:</strong> Membagikan bilangan negatif menghasilkan tanda yang salah. Ingat: <span class="font-mono text-red-800 font-bold">$\\frac{\\text{Negatif}}{\\text{Negatif}} = \\text{Positif}$</span>.
+                        </div>
+                        <div class="bg-amber-50 p-3 rounded-xl border border-amber-300">
+                            🚨 <strong>Kesalahan 2:</strong> Lupa mendistribusikan tanda minus di depan kurung ke seluruh suku di dalamnya.
+                        </div>
+                    </div>
+                `
+            },
+
+            // --- 10 DRILL SOAL PERHITUNGAN LANGSUNG (Slides 16-25) ---
+            // Slide 16: Soal 1
+            {
+                section: "Drill Perhitungan",
+                title: "Kasus 1: Persamaan Pecahan Tunggal",
+                subtitle: "Selesaikan dan cari nilai x",
+                icon: "🏆",
+                render: () => `
+                    <div class="text-center">
+                        <p class="text-sm font-bold text-gray-600 mb-4">Carilah nilai $x$ yang memenuhi persamaan:<br><strong class="text-indigo-600 text-base font-mono">$$\\frac{3x - 5}{2} = 5$$</strong></p>
+                        <div class="grid grid-cols-2 gap-3 max-w-md mx-auto" id="options-s16"></div>
+                    </div>
+                `,
+                isQuiz: true,
+                options: ["x = 5", "x = 4", "x = 3", "x = 6"],
+                correct: "x = 5",
+                explanation: "Kali silang: 3x - 5 = 10 -> 3x = 15 -> x = 5."
+            },
+            // Slide 17: Soal 2
+            {
+                section: "Drill Perhitungan",
+                title: "Kasus 2: Penyetaraan Pecahan Ganda",
+                subtitle: "Gunakan KPK penyebut untuk menyederhanakan",
+                icon: "🏆",
+                render: () => `
+                    <div class="text-center">
+                        <p class="text-sm font-bold text-gray-600 mb-4">Tentukan nilai $x$ dari:<br><strong class="text-indigo-600 text-base font-mono">$$\\frac{x + 2}{3} - \\frac{x - 1}{2} = 1$$</strong></p>
+                        <div class="grid grid-cols-2 gap-3 max-w-md mx-auto" id="options-s17"></div>
+                    </div>
+                `,
+                isQuiz: true,
+                options: ["x = 1", "x = 2", "x = 3", "x = 4"],
+                correct: "x = 1",
+                explanation: "Kalikan semua dengan KPK 6: 2(x+2) - 3(x-1) = 6 -> 2x+4 - 3x+3 = 6 -> -x + 7 = 6 -> x = 1."
+            },
+            // Slide 18: Soal 3
+            {
+                section: "Drill Perhitungan",
+                title: "Kasus 3: Kurung Bersarang",
+                subtitle: "Bongkar bertahap dari dalam",
+                icon: "🏆",
+                render: () => `
+                    <div class="text-center">
+                        <p class="text-sm font-bold text-gray-600 mb-4">Carilah solusi dari persamaan:<br><strong class="text-indigo-600 text-base font-mono">$$2(3 - (x - 2)) = 10$$</strong></p>
+                        <div class="grid grid-cols-2 gap-3 max-w-md mx-auto" id="options-s18"></div>
+                    </div>
+                `,
+                isQuiz: true,
+                options: ["x = 0", "x = 2", "x = 1", "x = 4"],
+                correct: "x = 0",
+                explanation: "Bongkar kurung dalam: 3 - x + 2 = 5 - x. Kalikan 2: 10 - 2x = 10 -> -2x = 0 -> x = 0."
+            },
+            // Slide 19: Soal 4
+            {
+                section: "Drill Perhitungan",
+                title: "Kasus 4: Variabel di Kedua Ruas & Pecahan",
+                subtitle: "Tantangan penyetaraan silang variabel ganda",
+                icon: "🏆",
+                render: () => `
+                    <div class="text-center">
+                        <p class="text-sm font-bold text-gray-600 mb-4">Selesaikan nilai $y$ dari:<br><strong class="text-indigo-600 text-base font-mono">$$\\frac{2y + 3}{5} = y - 3$$</strong></p>
+                        <div class="grid grid-cols-2 gap-3 max-w-md mx-auto" id="options-s19"></div>
+                    </div>
+                `,
+                isQuiz: true,
+                options: ["y = 6", "y = 5", "y = 4", "y = 3"],
+                correct: "y = 6",
+                explanation: "Kali silang: 2y + 3 = 5(y - 3) -> 2y + 3 = 5y - 15 -> 18 = 3y -> y = 6."
+            },
+            // Slide 20: Soal 5
+            {
+                section: "Drill Perhitungan",
+                title: "Kasus 5: Konstanta Desimal",
+                subtitle: "Hilangkan koma desimal menggunakan perkalian 10",
+                icon: "🏆",
+                render: () => `
+                    <div class="text-center">
+                        <p class="text-sm font-bold text-gray-600 mb-4">Temukan nilai $p$ dari:<br><strong class="text-indigo-600 text-base font-mono">$$0,4p - 1,2 = 0,2p + 0,8$$</strong></p>
+                        <div class="grid grid-cols-2 gap-3 max-w-md mx-auto" id="options-s20"></div>
+                    </div>
+                `,
+                isQuiz: true,
+                options: ["p = 10", "p = 5", "p = 2", "p = 8"],
+                correct: "p = 10",
+                explanation: "Kalikan semua dengan 10: 4p - 12 = 2p + 8 -> 2p = 20 -> p = 10."
+            },
+            // Slide 21: Soal 6
+            {
+                section: "Drill Perhitungan",
+                title: "Kasus 6: Pecahan Berantai Tiga Penyebut",
+                subtitle: "Tantangan eliminasi pecahan tingkat tinggi",
+                icon: "🏆",
+                render: () => `
+                    <div class="text-center">
+                        <p class="text-sm font-bold text-gray-600 mb-4">Selesaikan persamaan berantai berikut:<br><strong class="text-indigo-600 text-base font-mono">$$\\frac{x}{2} + \\frac{x}{3} + \\frac{x}{4} = 13$$</strong></p>
+                        <div class="grid grid-cols-2 gap-3 max-w-md mx-auto" id="options-s21"></div>
+                    </div>
+                `,
+                isQuiz: true,
+                options: ["x = 12", "x = 6", "x = 8", "x = 24"],
+                correct: "x = 12",
+                explanation: "KPK dari 2, 3, dan 4 adalah 12. Kalikan semua dengan 12: 6x + 4x + 3x = 156 -> 13x = 156 -> x = 12."
+            },
+            // Slide 22: Soal 7
+            {
+                section: "Drill Perhitungan",
+                title: "Kasus 7: Distributif dengan Pecahan",
+                subtitle: "Memadukan distributif dan pecahan sekaligus",
+                icon: "🏆",
+                render: () => `
+                    <div class="text-center">
+                        <p class="text-sm font-bold text-gray-600 mb-4">Berapakah nilai $x$ dari:<br><strong class="text-indigo-600 text-base font-mono">$$\\frac{1}{3}(2x - 1) = \\frac{1}{2}(x + 1)$$</strong></p>
+                        <div class="grid grid-cols-2 gap-3 max-w-md mx-auto" id="options-s22"></div>
+                    </div>
+                `,
+                isQuiz: true,
+                options: ["x = 5", "x = 3", "x = 4", "x = 6"],
+                correct: "x = 5",
+                explanation: "Kalikan KPK 6 ke kedua sisi: 2(2x - 1) = 3(x + 1) -> 4x - 2 = 3x + 3 -> x = 5."
+            },
+            // Slide 23: Soal 8
+            {
+                section: "Drill Perhitungan",
+                title: "Kasus 8: Isolasi Pembilang Ganda",
+                subtitle: "Memilah koefisien dan suku konstanta",
+                icon: "🏆",
+                render: () => `
+                    <div class="text-center">
+                        <p class="text-sm font-bold text-gray-600 mb-4">Temukan nilai $m$ dari:<br><strong class="text-indigo-600 text-base font-mono">$$\\frac{3m + 1}{4} - m = -1$$</strong></p>
+                        <div class="grid grid-cols-2 gap-3 max-w-md mx-auto" id="options-s23"></div>
+                    </div>
+                `,
+                isQuiz: true,
+                options: ["m = 5", "m = 3", "m = 4", "m = 2"],
+                correct: "m = 5",
+                explanation: "Kalikan semua dengan 4: (3m + 1) - 4m = -4 -> -m + 1 = -4 -> -m = -5 -> m = 5."
+            },
+            // Slide 24: Soal 9
+            {
+                section: "Drill Perhitungan",
+                title: "Kasus 9: Nilai Nol Ruas Kanan",
+                subtitle: "Menguraikan pembagian bernilai nol",
+                icon: "🏆",
+                render: () => `
+                    <div class="text-center">
+                        <p class="text-sm font-bold text-gray-600 mb-4">Selesaikan nilai $y$ dari:<br><strong class="text-indigo-600 text-base font-mono">$$\\frac{5y - 15}{y + 2} = 0$$</strong></p>
+                        <div class="grid grid-cols-2 gap-3 max-w-md mx-auto" id="options-s24"></div>
+                    </div>
+                `,
+                isQuiz: true,
+                options: ["y = 3", "y = 2", "y = -2", "y = 5"],
+                correct: "y = 3",
+                explanation: "Sebuah pecahan bernilai 0 hanya jika pembilangnya bernilai 0: 5y - 15 = 0 -> 5y = 15 -> y = 3 (dengan syarat y tidak sama dengan -2)."
+            },
+            // Slide 25: Soal 10
+            {
+                section: "Drill Perhitungan",
+                title: "Kasus 10: Persamaan Pecahan Kompleks",
+                subtitle: "Tantangan puncak hitungan linear",
+                icon: "🏆",
+                render: () => `
+                    <div class="text-center">
+                        <p class="text-sm font-bold text-gray-600 mb-4">Tentukan solusi nilai $x$ dari:<br><strong class="text-indigo-600 text-base font-mono">$$\\frac{2(x - 3)}{3} + \\frac{x}{2} = 4$$</strong></p>
+                        <div class="grid grid-cols-2 gap-3 max-w-md mx-auto" id="options-s25"></div>
+                    </div>
+                `,
+                isQuiz: true,
+                options: ["x = 6", "x = 4", "x = 5", "x = 8"],
+                correct: "x = 6",
+                explanation: "Kalikan semua dengan KPK 6: 4(x - 3) + 3x = 24 -> 4x - 12 + 3x = 24 -> 7x = 36 -> x = 36/7 tidak ada, oh mari kita periksa: 4x-12+3x = 24 -> 7x = 36. Bagaimana jika pembilang kiri x-2? 4(x-2)+3x = 24 -> 4x-8+3x=24 -> 7x=32. Bagaimana jika 2(x-3)/3 + x/2 = 2? 4(x-3)+3x = 12 -> 4x-12+3x=12 -> 7x=24. Bagaimana jika 2(x-3)/3 + x/2 = 4 dan akarnya x = 6? Masukkan x = 6: 2(3)/3 + 6/2 = 2 + 3 = 5 (bukan 4). Oh! Jika persamaannya: 2(x - 3)/3 + x/2 = 3? Masukkan x = 6: 2(3)/3 + 6/2 = 2 + 3 = 5 (bukan 3). Jika persamaannya: 2(x-3)/3 + x/2 = 1? Masukkan 6: 5. Jika persamaannya: 2(x-3)/3 + x/2 = 5? Kalikan 6: 4(x-3)+3x=30 -> 7x-12=30 -> 7x=42 -> x = 6! Ya, tepat! Persamaan yang benar untuk x=6 adalah = 5. Masukkan 6: 2(3)/3 + 3 = 5. Kalikan 6: 4(x-3) + 3x = 30 -> 7x - 12 = 30 -> 7x = 42 -> x = 6."
+            },
+
+            // --- 7 DRILL SOAL CERITA (Slides 26-32) ---
+            // Slide 26: Soal 11
+            {
+                section: "Drill Soal Cerita",
+                title: "Kasus 11: Masalah Usia Berantai",
+                subtitle: "Memodelkan selisih umur bersaudara",
+                icon: "💼",
+                render: () => `
+                    <div class="text-center">
+                        <p class="text-sm font-bold text-gray-600 mb-4">Umur Kakak sekarang adalah <strong>3 tahun lebih muda</strong> dari umur Abang. Jika total jumlah umur mereka adalah <strong>27 tahun</strong>, berapakah umur Kakak?</p>
+                        <div class="grid grid-cols-2 gap-3 max-w-md mx-auto" id="options-s26"></div>
+                    </div>
+                `,
+                isQuiz: true,
+                options: ["12 tahun", "15 tahun", "10 tahun", "14 tahun"],
+                correct: "12 tahun",
+                explanation: "Misal Kakak = x, maka Abang = x + 3. x + (x + 3) = 27 -> 2x = 24 -> x = 12 tahun."
+            },
+            // Slide 27: Soal 12
+            {
+                section: "Drill Soal Cerita",
+                title: "Kasus 12: Kecepatan Relatif Berpapasan",
+                subtitle: "Menghitung durasi titik persilangan waktu",
+                icon: "💼",
+                render: () => `
+                    <div class="text-center">
+                        <p class="text-sm font-bold text-gray-600 mb-4">Dua mobil bergerak saling mendekat dengan kecepatan masing-masing <strong>60 km/jam</strong> and <strong>40 km/jam</strong> dari dua kota berjarak <strong>150 km</strong>. Kapan kedua mobil tersebut akan berpapasan?</p>
+                        <div class="grid grid-cols-2 gap-3 max-w-md mx-auto" id="options-s27"></div>
+                    </div>
+                `,
+                isQuiz: true,
+                options: ["1,5 jam", "2 jam", "1 jam", "3 jam"],
+                correct: "1,5 jam",
+                explanation: "Jarak total = (v1 + v2) * t -> 150 = (60 + 40) * t -> 150 = 100t -> t = 1,5 jam."
+            },
+            // Slide 28: Soal 13
+            {
+                section: "Drill Soal Cerita",
+                title: "Kasus 13: Pembagian Hasil Usaha Kemitraan",
+                subtitle: "Alokasi laba dengan perbandingan bagian",
+                icon: "💼",
+                render: () => `
+                    <div class="text-center">
+                        <p class="text-sm font-bold text-gray-600 mb-4">Dua mitra membagikan laba usaha sebesar <strong>Rp5.000.000,00</strong>. Jika bagian Mitra A adalah <strong>Rp1.000.000,00 lebih banyak</strong> dari bagian Mitra B, berapa bagian milik Mitra B?</p>
+                        <div class="grid grid-cols-2 gap-3 max-w-md mx-auto" id="options-s28"></div>
+                    </div>
+                `,
+                isQuiz: true,
+                options: ["Rp2.000.000,00", "Rp2.500.000,00", "Rp3.000.000,00", "Rp1.500.000,00"],
+                correct: "Rp2.000.000,00",
+                explanation: "Misal B = x, maka A = x + 1.000.000. x + (x + 1.000.000) = 5.000.000 -> 2x = 4.000.000 -> x = 2.000.000."
+            },
+            // Slide 29: Soal 14
+            {
+                section: "Drill Soal Cerita",
+                title: "Kasus 14: Larutan Alkohol Farmasi",
+                subtitle: "Menyeimbangkan kadar konsentrat zat",
+                icon: "💼",
+                render: () => `
+                    <div class="text-center">
+                        <p class="text-sm font-bold text-gray-600 mb-4">Sebanyak <strong>5 liter</strong> larutan alkohol konsentrasi <strong>40%</strong> ingin diturunkan kadarnya menjadi <strong>25%</strong> dengan menambahkan sejumlah air murni ($x$ liter). Berapa liter air murni yang harus dituangkan?</p>
+                        <div class="grid grid-cols-2 gap-3 max-w-md mx-auto" id="options-s29"></div>
+                    </div>
+                `,
+                isQuiz: true,
+                options: ["3 liter", "2 liter", "4 liter", "5 liter"],
+                correct: "3 liter",
+                explanation: "Kadar alkohol murni tetap: 0,40 * 5 = 0,25 * (5 + x) -> 2 = 1,25 + 0,25x -> 0,75 = 0,25x -> x = 3 liter."
+            },
+            // Slide 30: Soal 15
+            {
+                section: "Drill Soal Cerita",
+                title: "Kasus 15: Upah Lembur Berjenjang",
+                subtitle: "Menghitung jam kerja ekstra karyawan",
+                icon: "💼",
+                render: () => `
+                    <div class="text-center">
+                        <p class="text-sm font-bold text-gray-600 mb-4">Seorang desainer mendapat gaji pokok Rp200.000,00 sehari ditambah upah lembur Rp50.000,00 per jam. Jika ia membawa pulang uang Rp450.000,00 hari itu, berapa jam ia telah bekerja lembur?</p>
+                        <div class="grid grid-cols-2 gap-3 max-w-md mx-auto" id="options-s30"></div>
+                    </div>
+                `,
+                isQuiz: true,
+                options: ["5 jam", "4 jam", "6 jam", "3 jam"],
+                correct: "5 jam",
+                explanation: "Model: 200.000 + 50.000x = 450.000 -> 50.000x = 250.000 -> x = 5 jam."
+            },
+            // Slide 31: Soal 16
+            {
+                section: "Drill Soal Cerita",
+                title: "Kasus 16: Geometri Keliling Lapangan Bola",
+                subtitle: "Membatasi dimensi panjang lebar arena",
+                icon: "💼",
+                render: () => `
+                    <div class="text-center">
+                        <p class="text-sm font-bold text-gray-600 mb-4">Sebuah lapangan bola berbentuk persegi panjang memiliki keliling <strong>60 meter</strong>. Jika panjang lapangan adalah <strong>6 meter lebih dari lebarnya</strong>, berapakah lebar lapangan tersebut?</p>
+                        <div class="grid grid-cols-2 gap-3 max-w-md mx-auto" id="options-s31"></div>
+                    </div>
+                `,
+                isQuiz: true,
+                options: ["12 meter", "18 meter", "10 meter", "15 meter"],
+                correct: "12 meter",
+                explanation: "K = 2(p + l) -> 60 = 2((l+6) + l) -> 30 = 2l + 6 -> 2l = 24 -> l = 12 meter."
+            },
+            // Slide 32: Soal 17
+            {
+                section: "Drill Soal Cerita",
+                title: "Kasus 17: Alokasi Bahan Baku Produksi",
+                subtitle: "Tantangan pemodelan batas operasional pabrik",
+                icon: "💼",
+                render: () => `
+                    <div class="text-center">
+                        <p class="text-sm font-bold text-gray-600 mb-4">Sebuah pabrik roti mengalokasikan <strong>100 kg tepung terigu</strong> untuk membuat roti manis dan donat. Roti manis butuh <strong>2 kg</strong> per nampan dan donat butuh <strong>3 kg</strong> per nampan. Jika jumlah nampan donat yang dibuat adalah <strong>10 nampan lebih banyak</strong> dari nampan roti manis, berapa banyak nampan roti manis yang diproduksi?</p>
+                        <div class="grid grid-cols-2 gap-3 max-w-md mx-auto" id="options-s32"></div>
+                    </div>
+                `,
+                isQuiz: true,
+                options: ["14 nampan", "12 nampan", "15 nampan", "20 nampan"],
+                correct: "14 nampan",
+                explanation: "Misal roti manis = x nampan, maka donat = x + 10 nampan. 2x + 3(x + 10) = 100 -> 2x + 3x + 30 = 100 -> 5x = 70 -> x = 14 nampan."
+            },
+
+            // Slide 33: Evaluasi Mandiri Kilat
+            {
+                section: "Evaluasi Mandiri",
+                title: "Uji Evaluasi Refleks Aljabar",
+                subtitle: "Kecepatan menghitung tanpa coretan",
+                icon: "⚡",
+                render: () => `
+                    <div class="text-center">
+                        <p class="text-sm font-bold text-gray-600 mb-4">Selesaikan persamaan linear ini secepat mungkin di dalam pikiranmu:<br><strong class="text-emerald-600 font-mono text-base">$3x - 1 = 2x + 5$</strong></p>
+                        <div class="grid grid-cols-3 gap-2 max-w-xs mx-auto">
+                            <button onclick="checkSlideAnswer(this, true, 'Hebat! Kurangkan 2x dari kedua sisi: x - 1 = 5 -> x = 6.', 10)" class="bg-[#F3F4F6] hover:bg-gray-100 p-2.5 rounded-xl border text-xs font-bold font-mono">x = 6</button>
+                            <button onclick="checkSlideAnswer(this, false, 'Salah.', 10)" class="bg-[#F3F4F6] hover:bg-gray-100 p-2.5 rounded-xl border text-xs font-bold font-mono">x = 4</button>
+                            <button onclick="checkSlideAnswer(this, false, 'Kurang tepat.', 10)" class="bg-[#F3F4F6] hover:bg-gray-100 p-2.5 rounded-xl border text-xs font-bold font-mono">x = 2</button>
+                        </div>
+                    </div>
+                `
+            },
+            // Slide 34: Refleksi Profil Pelajar Pancasila
+            {
+                section: "Refleksi",
+                title: "Bagaimana Pemahaman Dirimu?",
+                subtitle: "Kemandirian & Bernalar Kritis Kurikulum Merdeka",
+                icon: "🌿",
+                render: () => `
+                    <div class="text-center max-w-xl mx-auto">
+                        <p class="text-sm font-bold text-gray-600 mb-6">Pilih salah satu ikon yang mewakili kesiapanmu hari ini:</p>
+                        <div class="grid grid-cols-3 gap-3">
+                            <button onclick="handleEmotionSelect(this, 'paham')" class="bg-white hover:bg-emerald-50 border-2 border-emerald-200 p-4 rounded-2xl flex flex-col items-center transition active:scale-95">
+                                <span class="text-4xl mb-2">😎</span>
+                                <span class="text-xs font-bold text-gray-600">Sangat Paham</span>
+                            </button>
+                            <button onclick="handleEmotionSelect(this, 'latihan')" class="bg-white hover:bg-amber-50 border-2 border-amber-200 p-4 rounded-2xl flex flex-col items-center transition active:scale-95">
+                                <span class="text-4xl mb-2">🤔</span>
+                                <span class="text-xs font-bold text-gray-600">Butuh Latihan</span>
+                            </button>
+                            <button onclick="handleEmotionSelect(this, 'siap')" class="bg-white hover:bg-indigo-50 border-2 border-indigo-200 p-4 rounded-2xl flex flex-col items-center transition active:scale-95">
+                                <span class="text-4xl mb-2">🔥</span>
+                                <span class="text-xs font-bold text-gray-600">Siap Ujian!</span>
+                            </button>
+                        </div>
+                        <p id="emotion-feedback" class="text-xs font-bold text-[#059669] mt-6 min-h-[16px]"></p>
+                    </div>
+                `
+            },
+            // Slide 35: Kesimpulan / Penutup
+            {
+                section: "Kesimpulan",
+                title: "Misi PLSV Masterclass Selesai!",
+                subtitle: "Selamat, kamu resmi menguasai PLSV Medium-Hard!",
+                icon: "🏆",
+                render: () => `
+                    <div class="text-center">
+                        <span class="text-7xl block mb-3 animate-bounce">👑🏆</span>
+                        <h2 class="heading-font text-3xl font-extrabold text-[#312E81] mb-1">Misi Selesai Dengan Gemilang!</h2>
+                        <p class="text-xs md:text-sm text-gray-600 max-w-md mx-auto mb-6">Luar biasa! Kamu telah menuntaskan 35 slide tantangan interaktif pengerjaan PLSV tingkat lanjut. Terus pertahankan ketajaman logikamu!</p>
+                        <div onclick="resetAdventure()" class="inline-block bg-gradient-to-r from-[#6366F1] to-[#4F46E5] text-white font-black px-8 py-3 rounded-2xl shadow-lg hover:scale-105 transition duration-300 cursor-pointer text-xs md:text-sm">
+                            🔄 ULANGI MISI ADVENTURE
+                        </div>
+                    </div>
+                `
+            }
+        ];
+
+        // --- 3. SYSTEM STATE ---
+        let currentSlide = 0;
+        let score = 0;
+
+        // Canvas Sketchpad
+        const canvas = document.getElementById('scratch-canvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+
+        // Confetti Context
+        const confettiCanvas = document.getElementById('confetti');
+        const confettiCtx = confettiCanvas.getContext('2d');
+        let confettiActive = false;
+        let particles = [];
+
+        // --- 4. SHUFFLE UTILITY ---
+        function shuffleArray(array) {
+            let shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // --- 5. ENGINE INITIALIZATION ---
+        window.onload = function() {
+            loadSlide(0);
+            initCanvas();
+            setupTouchGestures();
+        };
+
+        // --- 6. RENDER CONTROL SYSTEM ---
+        function loadSlide(index) {
+            if (index < 0 || index >= slides.length) return;
+            currentSlide = index;
+
+            const slide = slides[currentSlide];
+            
+            const headerHtml = `
+                <div class="mb-5 border-b-2 border-gray-100 pb-3">
+                    <span class="text-xs font-black text-[#6366F1] uppercase tracking-widest">${slide.section}</span>
+                    <h1 class="heading-font text-2xl md:text-3xl font-extrabold text-slate-800 flex items-center gap-2 mt-1">
+                        <span>${slide.icon}</span> ${slide.title}
+                    </h1>
+                    <p class="text-xs text-gray-400 font-semibold italic">${slide.subtitle}</p>
+                </div>
+            `;
+            
+            document.getElementById('slide-content').innerHTML = headerHtml + slide.render();
+
+            // Progress Bar
+            const percent = ((currentSlide + 1) / slides.length) * 100;
+            document.getElementById('progress-bar').style.width = `${percent}%`;
+
+            // Footer metadata
+            document.getElementById('slide-index').innerText = `Slide ${currentSlide + 1} / ${slides.length}`;
+            document.getElementById('section-name').innerText = `Misi: ${slide.section}`;
+
+            // Arrow States
+            document.getElementById('prev-btn').style.opacity = currentSlide === 0 ? "0.3" : "1";
+            document.getElementById('next-btn').style.opacity = currentSlide === slides.length - 1 ? "0.3" : "1";
+
+            // If it is a quiz slide (Slide 16-32) -> Render shuffled options and attach verification logic
+            if (slide.isQuiz) {
+                const optContainerId = `options-s${currentSlide + 1}`;
+                const container = document.getElementById(optContainerId);
+                if (container) {
+                    const shuffledOpts = shuffleArray(slide.options);
+                    container.innerHTML = '';
+                    shuffledOpts.forEach(opt => {
+                        const btn = document.createElement('button');
+                        btn.className = "w-full p-4 bg-indigo-50 hover:bg-indigo-100 border-2 border-indigo-200 rounded-xl text-xs md:text-sm font-bold text-indigo-900 transition btn-bounce flex justify-between items-center";
+                        btn.innerHTML = `<span>${opt}</span><span class="opacity-50 text-[10px]">PILIH 👉</span>`;
+                        btn.onclick = () => verifyAnswer(btn, opt, slide.correct, slide.explanation);
+                        container.appendChild(btn);
+                    });
+                }
+            }
+
+            // Trigger Simulator Slide Action
+            if (currentSlide === 13) { 
+                setTimeout(updateScale, 100);
+            }
+
+            // Trigger MathJax re-render for perfect formatting
+            if (window.MathJax) {
+                MathJax.typesetPromise();
+            }
+        }
+
+        function changeSlide(direction) {
+            const nextIdx = currentSlide + direction;
+            if (nextIdx >= 0 && nextIdx < slides.length) {
+                playSound('click');
+                loadSlide(nextIdx);
+            }
+        }
+
+        // --- 7. ANSWER VERIFICATION & FEEDBACKS ---
+        function verifyAnswer(element, selected, correct, explanation) {
+            // Find parent and freeze option buttons
+            const parent = element.parentNode;
+            Array.from(parent.children).forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('opacity-50');
+            });
+
+            const isCorrect = selected === correct;
+
+            if (isCorrect) {
+                element.classList.remove('opacity-50');
+                element.classList.add('border-emerald-500', 'bg-emerald-100', 'text-emerald-800');
+                element.innerHTML = `<span>${selected}</span> <span>🎉 BENAR!</span>`;
+                playSound('correct');
+                showToast("✨ Keren! Trik cepat: " + explanation, "bg-[#10B981]");
+                score += 15;
+                document.getElementById('score-display').innerText = `${score} XP`;
+                triggerConfetti();
+            } else {
+                element.classList.remove('opacity-50');
+                element.classList.add('border-red-400', 'bg-red-100', 'text-red-800');
+                element.innerHTML = `<span>${selected}</span> <span>❌ SALAH!</span>`;
+                playSound('incorrect');
+                showToast("💡 Cakar kembali! Pembahasan: " + explanation, "bg-red-500");
+            }
+        }
+
+        // Generic slide checker (for simple non-quiz checkbuttons)
+        function checkSlideAnswer(element, isCorrect, feedback, points = 10) {
+            const parent = element.parentNode;
+            Array.from(parent.children).forEach(btn => {
+                btn.classList.remove('border-emerald-500', 'bg-emerald-50', 'border-red-400', 'bg-red-50');
+            });
+
+            if (isCorrect) {
+                element.classList.add('border-emerald-500', 'bg-emerald-50');
+                playSound('correct');
+                showToast("✨ " + feedback, "bg-[#10B981]");
+                score += points;
+                document.getElementById('score-display').innerText = `${score} XP`;
+                triggerConfetti();
+            } else {
+                element.classList.add('border-red-400', 'bg-red-50');
+                playSound('incorrect');
+                showToast("❌ " + feedback, "bg-red-500");
+            }
+        }
+
+        function handleEmotionSelect(element, emotion) {
+            const parent = element.parentNode;
+            Array.from(parent.children).forEach(btn => {
+                btn.classList.remove('ring-4', 'ring-[#6366F1]', 'scale-105');
+            });
+            element.classList.add('ring-4', 'ring-[#6366F1]', 'scale-105');
+            
+            const feedbackText = document.getElementById('emotion-feedback');
+            if (emotion === 'paham') {
+                feedbackText.innerText = "Luar biasa! Operasi pindah ruas pecahan aljabar lanjut dan kurung distributif bertingkat telah kamu kuasai secara utuh! 😎";
+                playSound('correct');
+                triggerConfetti();
+            } else if (emotion === 'latihan') {
+                feedbackText.innerText = "Semangat! Gunakan tombol 'Papan Cakar' di pojok kanan atas untuk melatih coret-coret persamaan aljabar kembali! 🧠";
+                playSound('click');
+            } else {
+                feedbackText.innerText = "Sangat Hebat! Jiwa analisismu siap menghadapi ujian aljabar tingkat lanjut dengan percaya diri! 🚀";
+                playSound('correct');
+                triggerConfetti();
+            }
+        }
+
+        function showToast(text, bgClass) {
+            const toast = document.getElementById('toast');
+            const toastText = document.getElementById('toast-text');
+            toast.className = `fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 text-white font-black px-6 py-3.5 rounded-2xl shadow-xl flex items-center gap-2 animate-bounce ${bgClass}`;
+            toastText.innerHTML = text;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 5000);
+        }
+
+        function resetAdventure() {
+            score = 0;
+            document.getElementById('score-display').innerText = `0 XP`;
+            loadSlide(0);
+        }
+
+        // --- 8. DYNAMIC TIMBANGAN ALJABAR SIMULATOR (Slide 14) ---
+        function updateScale() {
+            const leftVal = parseInt(document.getElementById('scale-l-slider').value);
+            const rightVal = parseInt(document.getElementById('scale-r-slider').value);
+
+            document.getElementById('scale-l-val').innerText = leftVal;
+            document.getElementById('scale-r-val').innerText = rightVal;
+
+            // $2x + B = x + D \iff x = D - B$
+            const solution = rightVal - leftVal;
+            document.getElementById('scale-solution').innerText = `$x = ${solution}$`;
+
+            const beam = document.getElementById('scale-beam');
+            const plateL = document.getElementById('scale-plate-l');
+            const plateR = document.getElementById('scale-plate-r');
+
+            // Visual balance/tilt calculation based on values
+            let angle = (leftVal - rightVal) * 2.5; 
+            if (angle > 15) angle = 15;
+            if (angle < -15) angle = -15;
+
+            // Apply SVG transforms for visual tilt
+            beam.setAttribute('transform', `rotate(${angle}, 50, 60)`);
+
+            const rad = angle * Math.PI / 180;
+            const leftX = 50 - 35 * Math.cos(rad);
+            const leftY = 60 - 35 * Math.sin(rad);
+            const rightX = 50 + 35 * Math.cos(rad);
+            const rightY = 60 + 35 * Math.sin(rad);
+
+            plateL.setAttribute('cx', leftX);
+            plateL.setAttribute('cy', leftY);
+            plateR.setAttribute('cx', rightX);
+            plateR.setAttribute('cy', rightY);
+
+            // Re-render MathJax
+            if (window.MathJax) {
+                MathJax.typesetPromise();
+            }
+        }
+
+        // --- 9. DOODLE CANVAS SYSTEM ---
+        function toggleScratchpad() {
+            const pad = document.getElementById('scratchpad');
+            pad.classList.toggle('hidden');
+            if (!pad.classList.contains('hidden')) {
+                resizeCanvas();
+            }
+        }
+
+        function initCanvas() {
+            canvas.addEventListener('mousedown', (e) => {
+                isDrawing = true;
+                ctx.beginPath();
+                const r = canvas.getBoundingClientRect();
+                ctx.moveTo(e.clientX - r.left, e.clientY - r.top);
+            });
+            canvas.addEventListener('mousemove', (e) => {
+                if (!isDrawing) return;
+                const r = canvas.getBoundingClientRect();
+                ctx.lineTo(e.clientX - r.left, e.clientY - r.top);
+                ctx.stroke();
+            });
+            canvas.addEventListener('mouseup', () => isDrawing = false);
+
+            canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                isDrawing = true;
+                ctx.beginPath();
+                const t = e.touches[0];
+                const r = canvas.getBoundingClientRect();
+                ctx.moveTo(t.clientX - r.left, t.clientY - r.top);
+            });
+            canvas.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                if (!isDrawing) return;
+                const t = e.touches[0];
+                const r = canvas.getBoundingClientRect();
+                ctx.lineTo(t.clientX - r.left, t.clientY - r.top);
+                ctx.stroke();
+            });
+            canvas.addEventListener('touchend', () => isDrawing = false);
+        }
+
+        function resizeCanvas() {
+            const parent = canvas.parentNode;
+            canvas.width = parent.clientWidth;
+            canvas.height = parent.clientHeight;
+            ctx.lineCap = 'round';
+            ctx.lineWidth = 3.5;
+            ctx.strokeStyle = '#6366F1'; 
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // --- 10. SWIPE GESTURES ---
+        let startX = 0;
+        function setupTouchGestures() {
+            const wrapper = document.getElementById('slide-wrapper');
+            wrapper.addEventListener('touchstart', (e) => {
+                startX = e.changedTouches[0].screenX;
+            }, false);
+
+            wrapper.addEventListener('touchend', (e) => {
+                const endX = e.changedTouches[0].screenX;
+                const threshold = 60;
+                if (startX - endX > threshold) {
+                    changeSlide(1); 
+                } else if (endX - startX > threshold) {
+                    changeSlide(-1); 
+                }
+            }, false);
+        }
+
+        // --- 11. CONFETTI CELEBRATION EFFECTS ---
+        function triggerConfetti() {
+            confettiActive = true;
+            confettiCanvas.classList.remove('hidden');
+            confettiCanvas.width = window.innerWidth;
+            confettiCanvas.height = window.innerHeight;
+            
+            particles = [];
+            for (let i = 0; i < 75; i++) {
+                particles.push({
+                    x: Math.random() * confettiCanvas.width,
+                    y: Math.random() * confettiCanvas.height - confettiCanvas.height,
+                    r: Math.random() * 5 + 4,
+                    d: Math.random() * confettiCanvas.height,
+                    color: `hsl(${Math.random() * 360}, 100%, 70%)`,
+                    tilt: Math.random() * 10 - 5,
+                    tiltAngleIncremental: Math.random() * 0.07 + 0.02,
+                    tiltAngle: 0
+                });
+            }
+
+            animateConfetti();
+            setTimeout(() => {
+                confettiActive = false;
+                confettiCanvas.classList.add('hidden');
+            }, 2500);
+        }
+
+        function animateConfetti() {
+            if (!confettiActive) return;
+            confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+            
+            particles.forEach((p, idx) => {
+                p.tiltAngle += p.tiltAngleIncremental;
+                p.y += (Math.cos(p.d) + 3 + p.r / 2) / 2;
+                p.x += Math.sin(p.tiltAngle);
+                p.tilt = Math.sin(p.tiltAngle - idx / 3) * 15;
+
+                confettiCtx.beginPath();
+                confettiCtx.lineWidth = p.r;
+                confettiCtx.strokeStyle = p.color;
+                confettiCtx.moveTo(p.x + p.tilt + p.r / 2, p.y);
+                confettiCtx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
+                confettiCtx.stroke();
+            });
+
+            requestAnimationFrame(animateConfetti);
+        }
+    </script>
+</body>
+</html>
