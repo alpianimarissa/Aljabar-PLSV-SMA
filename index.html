@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masterclass Kuis PLSV - Fase F</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- MathJax Configuration for Perfect Rendering -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #FAFAFE;
+        }
+        .heading-font {
+            font-family: 'Fredoka', sans-serif;
+        }
+        .math-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .btn-bounce {
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .btn-bounce:hover {
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-[#F5F3FF] via-[#EEF2FF] to-[#FFF1F2] min-h-screen flex flex-col justify-between overflow-x-hidden select-none">
+
+    <!-- HEADER NAVIGATION -->
+    <header class="bg-white/95 backdrop-blur-md border-b-4 border-[#6366F1] py-3.5 px-6 flex justify-between items-center sticky top-0 z-40 shadow-sm">
+        <div class="flex items-center gap-3">
+            <svg class="w-10 h-10 text-[#6366F1]" viewBox="0 0 100 100" fill="none">
+                <circle cx="50" cy="50" r="42" fill="#EEF2FF" stroke="#6366F1" stroke-width="4"/>
+                <line x1="50" y1="15" x2="50" y2="85" stroke="#6366F1" stroke-width="4"/>
+                <line x1="15" y1="50" x2="85" y2="50" stroke="#6366F1" stroke-width="4"/>
+                <circle cx="32" cy="50" r="6" fill="#EC4899"/>
+                <circle cx="68" cy="50" r="6" fill="#10B981"/>
+            </svg>
+            <div>
+                <h1 class="heading-font text-xl md:text-2xl font-bold text-[#4F46E5]">Kuis PLSV Masterclass</h1>
+                <p class="text-[10px] text-[#6366F1] font-black tracking-widest uppercase">Evaluasi Interaktif • 20 Tantangan Baru</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-2 md:gap-3">
+            <!-- XP Badge -->
+            <div class="bg-[#EEF2FF] border-2 border-[#6366F1] rounded-full px-3 py-1 md:px-4 md:py-1.5 flex items-center gap-1 md:gap-1.5 shadow-sm">
+                <span class="text-sm md:text-base">✨</span>
+                <span id="score-display" class="font-bold text-[#4F46E5] text-xs md:text-sm">0 XP</span>
+            </div>
+            
+            <!-- Scratchpad Toggle -->
+            <button id="scratchpad-btn" onclick="toggleScratchpad()" class="bg-[#ECFDF5] hover:bg-[#D1FAE5] border-2 border-[#10B981] active:scale-95 transition text-[#047857] font-black rounded-full px-3 py-1 md:px-4 md:py-1.5 text-xs md:text-sm shadow-sm flex items-center gap-1">
+                ✏️ <span class="hidden sm:inline">Papan Cakar</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- SCRATCHPAD DRAWING OVERLAY -->
+    <div id="scratchpad" class="hidden fixed inset-0 z-50 bg-white/95 flex flex-col p-4">
+        <div class="flex justify-between items-center mb-2 border-b-2 border-gray-100 pb-2">
+            <h3 class="heading-font text-lg font-bold text-[#4F46E5] flex items-center gap-2">
+                ✏️ Papan Cakar Aljabar
+            </h3>
+            <div class="flex items-center gap-2">
+                <button onclick="clearCanvas()" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-3 py-1.5 rounded-xl text-xs">Bersihkan</button>
+                <button onclick="toggleScratchpad()" class="bg-[#4F46E5] hover:bg-[#4338CA] text-white font-bold px-4 py-1.5 rounded-xl text-xs">Kembali ke Kuis</button>
+            </div>
+        </div>
+        <div class="flex-1 bg-indigo-50/20 border-4 border-dashed border-[#818CF8] rounded-2xl relative cursor-crosshair overflow-hidden">
+            <canvas id="scratch-canvas" class="absolute inset-0 w-full h-full"></canvas>
+        </div>
+        <p class="text-xs text-gray-400 mt-2 text-center">Gunakan stylus, jari, atau mouse untuk mencakar pengerjaan persamaan aljabar di sini!</p>
+    </div>
+
+    <!-- MAIN INTERACTIVE WINDOW -->
+    <main class="flex-1 flex flex-col items-center justify-center p-4 relative max-w-4xl mx-auto w-full my-4">
+        
+        <!-- DASHBOARD HUB (When not in a quiz) -->
+        <div id="dashboard-view" class="w-full bg-white rounded-3xl border-8 border-[#C7D2FE] shadow-xl p-6 md:p-10 text-center space-y-6">
+            <div class="max-w-md mx-auto space-y-3">
+                <span class="text-6xl animate-bounce block">🎯</span>
+                <h2 class="heading-font text-2xl md:text-4xl font-extrabold text-[#312E81]">Pilih Sesi Uji Kompetensi</h2>
+                <p class="text-sm text-gray-500 font-semibold leading-relaxed">
+                    Uji ketajaman logikamu menyelesaikan Persamaan Linear Satu Variabel (PLSV) melalui dua kategori tantangan mandiri.
+                </p>
+            </div>
+
+            <div class="grid sm:grid-cols-2 gap-4 max-w-2xl mx-auto pt-4">
+                <!-- Card Mode 1 -->
+                <button onclick="startQuizMode('perhitungan')" class="p-6 bg-gradient-to-br from-indigo-50 to-indigo-100 hover:from-indigo-100 hover:to-indigo-200 border-4 border-indigo-200 hover:border-indigo-400 rounded-3xl text-left transition duration-300 flex flex-col justify-between h-48 shadow-sm group">
+                    <div class="flex justify-between items-start w-full">
+                        <span class="text-3xl bg-white p-2 rounded-2xl shadow-sm">⚙️</span>
+                        <span class="text-[10px] font-black text-indigo-600 bg-white px-2 py-1 rounded-full uppercase tracking-wider">10 Soal</span>
+                    </div>
+                    <div>
+                        <h3 class="heading-font text-lg font-bold text-indigo-950 group-hover:translate-x-1 transition">Drill Perhitungan</h3>
+                        <p class="text-xs text-indigo-700/80 mt-1">Mengasah manipulasi aljabar, penyetaraan pecahan, kurung distributif, dan isolasi variabel.</p>
+                    </div>
+                </button>
+
+                <!-- Card Mode 2 -->
+                <button onclick="startQuizMode('cerita')" class="p-6 bg-gradient-to-br from-rose-50 to-rose-100 hover:from-rose-100 hover:to-rose-200 border-4 border-rose-200 hover:border-rose-400 rounded-3xl text-left transition duration-300 flex flex-col justify-between h-48 shadow-sm group">
+                    <div class="flex justify-between items-start w-full">
+                        <span class="text-3xl bg-white p-2 rounded-2xl shadow-sm">📖</span>
+                        <span class="text-[10px] font-black text-rose-600 bg-white px-2 py-1 rounded-full uppercase tracking-wider">10 Soal</span>
+                    </div>
+                    <div>
+                        <h3 class="heading-font text-lg font-bold text-rose-950 group-hover:translate-x-1 transition">Drill Soal Cerita</h3>
+                        <p class="text-xs text-rose-700/80 mt-1">Menerjemahkan problem riil, umur, kecepatan, tarif, hingga pencampuran zat menjadi model PLSV murni.</p>
+                    </div>
+                </button>
+            </div>
+            
+            <div class="text-xs text-indigo-400 font-bold uppercase tracking-widest pt-4">
+                Aturan main: +15 XP untuk setiap jawaban benar • Pembahasan instan muncul setelah memilih
+            </div>
+        </div>
+
+        <!-- QUIZ VIEW (Hidden initially) -->
+        <div id="quiz-view" class="hidden w-full bg-white rounded-3xl border-8 border-[#C7D2FE] shadow-xl overflow-hidden flex flex-col justify-between min-h-[500px]">
+            <!-- Top Progress Bar -->
+            <div class="w-full bg-[#EEF2FF] h-3.5">
+                <div id="progress-bar" class="bg-[#6366F1] h-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+
+            <!-- Dynamic Question Content -->
+            <div class="p-6 md:p-10 flex-1 flex flex-col justify-center">
+                <div class="mb-4 flex items-center justify-between border-b border-gray-100 pb-2">
+                    <span id="quiz-category-badge" class="text-xs font-black text-[#6366F1] uppercase tracking-widest">Kategori Kuis</span>
+                    <span id="quiz-index-indicator" class="text-xs font-bold text-gray-400 bg-gray-50 px-2.5 py-1 rounded-full">Soal 1 / 10</span>
+                </div>
+
+                <!-- Math Problem Text -->
+                <div id="problem-box" class="space-y-4">
+                    <!-- Loaded dynamically -->
+                </div>
+
+                <!-- Options grid -->
+                <div id="options-grid" class="grid sm:grid-cols-2 gap-3 mt-6">
+                    <!-- Loaded dynamically -->
+                </div>
+
+                <!-- Explanation Box (Appears after answering) -->
+                <div id="explanation-box" class="hidden mt-6 p-4 rounded-2xl text-xs md:text-sm leading-relaxed border-2 animate-fade-in">
+                    <!-- Solution guide loaded dynamically -->
+                </div>
+            </div>
+
+            <!-- Quiz Navigation Footer -->
+            <div class="bg-[#F5F3FF] border-t-2 border-[#E0E7FF] px-6 py-4 flex justify-between items-center">
+                <button onclick="backToHub()" class="text-xs font-extrabold text-[#6366F1] hover:text-[#4F46E5] flex items-center gap-1 bg-white border border-[#C7D2FE] px-3.5 py-2 rounded-xl shadow-sm transition">
+                    ◀ Hub Utama
+                </button>
+                <button id="next-question-btn" onclick="nextQuestion()" class="bg-gradient-to-r from-gray-400 to-gray-500 hover:from-gray-500 hover:to-gray-600 text-white font-extrabold px-6 py-2 rounded-xl text-xs md:text-sm shadow-sm transition flex items-center gap-1 cursor-pointer">
+                    Lewati / Lanjut ▶
+                </button>
+            </div>
+        </div>
+
+        <!-- OUTCOME SUMMARY VIEW (Hidden initially) -->
+        <div id="outcome-view" class="hidden w-full bg-white rounded-3xl border-8 border-[#C7D2FE] shadow-xl p-6 md:p-10 text-center space-y-6">
+            <span class="text-7xl block animate-bounce" id="outcome-emoji">👑</span>
+            <div class="space-y-2">
+                <h2 class="heading-font text-3xl font-extrabold text-slate-800" id="outcome-title">Sesi Selesai!</h2>
+                <p class="text-sm text-gray-500 font-semibold" id="outcome-subtitle">Kamu berhasil menyelesaikan seluruh tantangan.</p>
+            </div>
+
+            <div class="bg-[#EEF2FF] border-2 border-dashed border-[#818CF8] rounded-2xl p-6 max-w-md mx-auto grid grid-cols-2 gap-4">
+                <div>
+                    <span class="text-xs font-bold text-indigo-500 uppercase block">XP Diperoleh</span>
+                    <span class="text-2xl font-extrabold text-[#4F46E5]" id="outcome-xp">0 XP</span>
+                </div>
+                <div>
+                    <span class="text-xs font-bold text-indigo-500 uppercase block">Akurasi Jawaban</span>
+                    <span class="text-2xl font-extrabold text-[#4F46E5]" id="outcome-accuracy">0%</span>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-3 pt-2">
+                <button onclick="backToHub()" class="px-6 py-3 bg-white border-2 border-[#C7D2FE] hover:bg-slate-50 text-[#6366F1] font-black rounded-2xl text-xs md:text-sm shadow-sm transition">
+                    Kembali ke Hub Utama
+                </button>
+                <button onclick="restartCurrentQuiz()" class="px-6 py-3 bg-gradient-to-r from-[#6366F1] to-[#4F46E5] text-white font-black rounded-2xl text-xs md:text-sm shadow-md hover:scale-105 transition">
+                    Ulangi Kuis Ini
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FLOATING TOAST NOTIFICATION -->
+    <div id="toast" class="hidden fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 text-white font-bold px-6 py-3.5 rounded-2xl shadow-xl flex items-center gap-2 animate-bounce">
+        <span id="toast-icon">✨</span> <span id="toast-text">Luar biasa!</span>
+    </div>
+
+    <!-- CONFETTI CELEBRATION CANVAS -->
+    <canvas id="confetti" class="fixed inset-0 pointer-events-none z-50 w-full h-full hidden"></canvas>
+
+    <!-- FOOTER COPYRIGHT -->
+    <footer class="text-center text-xs text-slate-400 py-4 border-t border-slate-200/50 bg-white/50 w-full">
+        <p>© 2026 Masterclass PLSV Interactive Quiz. Menggunakan MathJax Engine.</p>
+    </footer>
+
+    <!-- MAIN APP JAVASCRIPT SYSTEM -->
+    <script>
+        // --- 1. SOUND EFFECT SYNTHESIZER ---
+        let audioCtx;
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function playSound(type) {
+            try {
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                if (type === 'correct') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, ctx.currentTime); 
+                    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.08); 
+                    osc.frequency.setValueAtTime(783.99, ctx.currentTime + 0.16); 
+                    gain.gain.setValueAtTime(0.12, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+                    osc.start(ctx.currentTime);
+                    osc.stop(ctx.currentTime + 0.4);
+                } else if (type === 'incorrect') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(130, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(65, ctx.currentTime + 0.3);
+                    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                    osc.start(ctx.currentTime);
+                    osc.stop(ctx.currentTime + 0.3);
+                } else if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(380, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(280, ctx.currentTime + 0.08);
+                    gain.gain.setValueAtTime(0.04, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+                    osc.start(ctx.currentTime);
+                    osc.stop(ctx.currentTime + 0.08);
+                }
+            } catch (e) {
+                console.log("Audio synthesized.");
+            }
+        }
+
+        // --- 2. 20 NEW COMPREHENSIVE PLSV QUESTIONS ---
+        const questionDatabase = {
+            perhitungan: [
+                {
+                    title: "Drill Perhitungan 1",
+                    question: "Carilah nilai $x$ yang memenuhi persamaan aljabar berikut:<br><strong class='text-indigo-600 text-lg font-mono'>$$4x - 7 = 2x + 9$$</strong>",
+                    options: ["x = 8", "x = 4", "x = 6", "x = 10"],
+                    correct: "x = 8",
+                    explanation: "Kumpulkan suku variabel di ruas kiri dan konstanta di ruas kanan:<br>$$4x - 2x = 9 + 7$$<br>$$2x = 16 \\rightarrow x = 8$$."
+                },
+                {
+                    title: "Drill Perhitungan 2",
+                    question: "Tentukan nilai $a$ yang memenuhi persamaan distributif berikut:<br><strong class='text-indigo-600 text-lg font-mono'>$$3(2a - 5) + 4 = 19$$</strong>",
+                    options: ["a = 5", "a = 4", "a = 3", "a = 6"],
+                    correct: "a = 5",
+                    explanation: "Bongkar kurung menggunakan sifat distributif terlebih dahulu:<br>$$6a - 15 + 4 = 19$$<br>$$6a - 11 = 19$$<br>$$6a = 19 + 11 \\rightarrow 6a = 30 \\rightarrow a = 5$$."
+                },
+                {
+                    title: "Drill Perhitungan 3",
+                    question: "Selesaikan persamaan pecahan silang berikut untuk mencari nilai $y$:<br><strong class='text-indigo-600 text-lg font-mono'>$$\\frac{3y + 2}{4} = \\frac{2y - 1}{3}$$</strong>",
+                    options: ["y = -10", "y = 10", "y = -2", "y = 2"],
+                    correct: "y = -10",
+                    explanation: "Lakukan perkalian silang antara kedua pecahan:<br>$$3(3y + 2) = 4(2y - 1)$$<br>$$9y + 6 = 8y - 4$$<br>Kurangkan $8y$ dari kedua sisi:<br>$$y + 6 = -4 \\rightarrow y = -10$$."
+                },
+                {
+                    title: "Drill Perhitungan 4",
+                    question: "Carilah solusi nilai $x$ dari persamaan linear bersarang berikut:<br><strong class='text-indigo-600 text-lg font-mono'>$$10 - 2(x + 3) = 4(x - 2)$$</strong>",
+                    options: ["x = 2", "x = 4", "x = 0", "x = 3"],
+                    correct: "x = 2",
+                    explanation: "Sederhanakan ekspresi di kedua ruas terlebih dahulu:<br>$$10 - 2x - 6 = 4x - 8$$<br>$$4 - 2x = 4x - 8$$<br>Pindahkan $-2x$ ke kanan dan $-8$ ke kiri:<br>$$4 + 8 = 4x + 2x \\rightarrow 12 = 6x \\rightarrow x = 2$$."
+                },
+                {
+                    title: "Drill Perhitungan 5",
+                    question: "Tentukan himpunan penyelesaian dari persamaan pecahan berikut:<br><strong class='text-indigo-600 text-lg font-mono'>$$\\frac{2}{3}x - \\frac{1}{4}x = 5$$</strong>",
+                    options: ["x = 12", "x = 10", "x = 15", "x = 20"],
+                    correct: "x = 12",
+                    explanation: "Kalikan seluruh ruas dengan KPK penyebut (yaitu 12) untuk mengeliminasi pecahan:<br>$$12 \\times \\left(\\frac{2}{3}x\\right) - 12 \\times \\left(\\frac{1}{4}x\\right) = 12 \\times 5$$<br>$$8x - 3x = 60$$<br>$$5x = 60 \\rightarrow x = 12$$."
+                },
+                {
+                    title: "Drill Perhitungan 6",
+                    question: "Selesaikan persamaan linear yang memuat koefisien desimal berikut:<br><strong class='text-indigo-600 text-lg font-mono'>$$0,5(2x - 4) = 1,2x - 3$$</strong>",
+                    options: ["x = 5", "x = 4", "x = 6", "x = 10"],
+                    correct: "x = 5",
+                    explanation: "Buka kurung terlebih dahulu:<br>$$x - 2 = 1,2x - 3$$<br>Kumpulkan konstanta di kiri dan variabel di kanan:<br>$$-2 + 3 = 1,2x - x$$<br>$$1 = 0,2x \\rightarrow x = \\frac{1}{0,2} = 5$$."
+                },
+                {
+                    title: "Drill Perhitungan 7",
+                    question: "Selesaikan persamaan pecahan aljabar bertingkat berikut untuk mendapatkan nilai $n$:<br><strong class='text-indigo-600 text-lg font-mono'>$$\\frac{3n - 1}{5} - \\frac{n + 3}{2} = -2$$</strong>",
+                    options: ["n = -3", "n = 3", "n = -5", "n = 5"],
+                    correct: "n = -3",
+                    explanation: "Kalikan semua suku dengan KPK 10 untuk menghilangkan pecahan:<br>$$2(3n - 1) - 5(n + 3) = -20$$<br>$$6n - 2 - 5n - 15 = -20$$<br>$$n - 17 = -20 \\rightarrow n = -20 + 17 \\rightarrow n = -3$$."
+                },
+                {
+                    title: "Drill Perhitungan 8",
+                    question: "Selesaikanlah nilai $x$ dari persamaan linear berikut:<br><strong class='text-indigo-600 text-lg font-mono'>$$3x - 4(x - 2) = 2(3 - x)$$</strong>",
+                    options: ["x = -2", "x = 2", "x = -4", "x = 4"],
+                    correct: "x = -2",
+                    explanation: "Buka kurung di kedua sisi terlebih dahulu:<br>$$3x - 4x + 8 = 6 - 2x$$<br>$$-x + 8 = 6 - 2x$$<br>Tambahkan $2x$ di kedua sisi dan kurangi 8:<br>$$2x - x = 6 - 8 \\rightarrow x = -2$$."
+                },
+                {
+                    title: "Drill Perhitungan 9",
+                    question: "Berapakah nilai $x$ yang memenuhi persamaan pecahan linear di bawah ini?<br><strong class='text-indigo-600 text-lg font-mono'>$$\\frac{x + 1}{x - 2} = 4$$</strong>",
+                    options: ["x = 3", "x = 4", "x = 5", "x = 2"],
+                    correct: "x = 3",
+                    explanation: "Lakukan perkalian silang penyebut ke ruas kanan (syarat $x \\neq 2$):<br>$$x + 1 = 4(x - 2)$$<br>$$x + 1 = 4x - 8$$<br>Kurangkan $x$ dan tambahkan 8 di kedua ruas:<br>$$1 + 8 = 4x - x \\rightarrow 9 = 3x \\rightarrow x = 3$$."
+                },
+                {
+                    title: "Drill Perhitungan 10",
+                    question: "Bongkar kurung ganda dan tentukan nilai $x$ dari:<br><strong class='text-indigo-600 text-lg font-mono'>$$3(x - 2(x - 4)) = 15$$</strong>",
+                    options: ["x = 3", "x = 5", "x = 2", "x = 4"],
+                    correct: "x = 3",
+                    explanation: "Selesaikan kurung terdalam terlebih dahulu:<br>$$3(x - 2x + 8) = 15$$<br>$$3(-x + 8) = 15$$<br>Bagi kedua ruas dengan 3:<br>$$-x + 8 = 5 \\rightarrow -x = -3 \\rightarrow x = 3$$."
+                }
+            ],
+            cerita: [
+                {
+                    title: "Drill Soal Cerita 1",
+                    question: "Jumlah dari tiga bilangan bulat berurutan adalah <strong>72</strong>. Berapakah bilangan terkecil di antara ketiga bilangan tersebut?",
+                    options: ["23", "22", "24", "25"],
+                    correct: "23",
+                    explanation: "Misalkan bilangan bulat berurutan tersebut adalah $x$, $x+1$, dan $x+2$.<br>$$x + (x + 1) + (x + 2) = 72$$<br>$$3x + 3 = 72 \\rightarrow 3x = 69 \\rightarrow x = 23$$."
+                },
+                {
+                    title: "Drill Soal Cerita 2",
+                    question: "Penyewaan lapangan futsal menetapkan biaya registrasi awal sebesar Rp50.000,00 ditambah biaya sewa Rp35.000,00 per jam. Jika Budi membayar total Rp190.000,00, berapa lama Budi menyewa lapangan tersebut?",
+                    options: ["4 jam", "3 jam", "5 jam", "6 jam"],
+                    correct: "4 jam",
+                    explanation: "Misalkan lama sewa adalah $x$ jam. Persamaan biayanya:<br>$$50.000 + 35.000x = 190.000$$<br>$$35.000x = 140.000 \\rightarrow x = \\frac{140.000}{35.000} = 4 \\text{ jam}$$."
+                },
+                {
+                    title: "Drill Soal Cerita 3",
+                    question: "Andi membeli 4 buah buku tulis yang sama and ia mendapatkan uang kembalian Rp12.000,00 setelah membayar dengan selembar uang pecahan Rp50.000,00. Berapakah harga satu buah buku tulis tersebut?",
+                    options: ["Rp9.500,00", "Rp8.500,00", "Rp10.000,00", "Rp9.000,00"],
+                    correct: "Rp9.500,00",
+                    explanation: "Misalkan harga satu buku tulis adalah $x$. Total belanja ditambah kembalian sama dengan jumlah uang bayar:<br>$$4x + 12.000 = 50.000$$<br>$$4x = 38.000 \\rightarrow x = 9.500$$."
+                },
+                {
+                    title: "Drill Soal Cerita 4",
+                    question: "Sisi-sisi sebuah segitiga sama sisi dinyatakan dalam ekspresi $(2x + 5)$ cm, $(3x - 1)$ cm, dan $(x + 11)$ cm. Tentukan keliling segitiga tersebut!",
+                    options: ["51 cm", "34 cm", "45 cm", "60 cm"],
+                    correct: "51 cm",
+                    explanation: "Karena segitiga sama sisi, maka panjang setiap sisinya sama:<br>$$2x + 5 = 3x - 1 \\rightarrow 5 + 1 = 3x - 2x \\rightarrow x = 6$$<br>Cari panjang satu sisi: $2(6) + 5 = 17$ cm.<br>Keliling segitiga: $3 \\times 17 = 51$ cm."
+                },
+                {
+                    title: "Drill Soal Cerita 5",
+                    question: "Umur Ayah sekarang adalah 3 kali umur anaknya. Jika selisih umur mereka berdua adalah 26 tahun, berapakah umur Ayah sekarang?",
+                    options: ["39 tahun", "36 tahun", "42 tahun", "45 tahun"],
+                    correct: "39 tahun",
+                    explanation: "Misal umur anak = $x$ tahun, maka umur Ayah = $3x$ tahun.<br>Selisih umur mereka:<br>$$3x - x = 26 \\rightarrow 2x = 26 \\rightarrow x = 13 \\text{ tahun}$$<br>Umur Ayah: $3 \\times 13 = 39$ tahun."
+                },
+                {
+                    title: "Drill Soal Cerita 6",
+                    question: "Risa menabung uang sakunya setiap hari dengan jumlah nominal yang tetap. Tabungan awalnya adalah Rp120.000,00. Setelah 15 hari menabung, saldo tabungan Risa menjadi Rp210.000,00. Berapa rupiah Risa menabung setiap harinya?",
+                    options: ["Rp6.000,00", "Rp5.000,00", "Rp7.500,00", "Rp8.000,00"],
+                    correct: "Rp6.000,00",
+                    explanation: "Misalkan nominal tabungan harian Risa adalah $x$ rupiah. Persamaan saldonya:<br>$$120.000 + 15x = 210.000$$<br>$$15x = 90.000 \\rightarrow x = 6.000$$."
+                },
+                {
+                    title: "Drill Soal Cerita 7",
+                    question: "Tarif awal sebuah layanan taksi adalah Rp10.000,00 dan tarif per kilometer berikutnya adalah Rp4.500,00. Jika seorang penumpang membayar total Rp77.500,00, berapa kilometer jarak perjalanan yang telah ditempuhnya?",
+                    options: ["15 km", "12 km", "14 km", "16 km"],
+                    correct: "15 km",
+                    explanation: "Misal jarak tempuh adalah $x$ km. Persamaan tarif perjalanan:<br>$$10.000 + 4.500x = 77.500$$<br>$$4.500x = 67.500 \\rightarrow x = 15 \\text{ km}$$."
+                },
+                {
+                    title: "Drill Soal Cerita 8",
+                    question: "Rata-rata nilai ulangan matematika dari 4 orang siswa adalah 75. Ketika nilai Doni digabungkan ke dalam kelompok tersebut, nilai rata-ratanya naik menjadi 78. Berapakah nilai ulangan Doni?",
+                    options: ["90", "85", "88", "92"],
+                    correct: "90",
+                    explanation: "Misal nilai Doni adalah $x$. Total nilai lama ditambah nilai Doni dibagi 5 orang sama dengan rata-rata baru:<br>$$\\frac{(4 \\times 75) + x}{5} = 78$$<br>$$300 + x = 390 \\rightarrow x = 90$$."
+                },
+                {
+                    title: "Drill Soal Cerita 9",
+                    question: "Sebuah pipa pengisi besar dapat mengisi penuh sebuah kolam dalam waktu 6 jam. Jika dibantu oleh sebuah pipa kecil, kolam tersebut dapat terisi penuh hanya dalam waktu 4 jam. Berapa jam waktu yang dibutuhkan jika pipa kecil itu bekerja sendiri?",
+                    options: ["12 jam", "10 jam", "8 jam", "15 jam"],
+                    correct: "12 jam",
+                    explanation: "Misalkan pipa kecil membutuhkan waktu $x$ jam untuk mengisi kolam sendirian. Laju kerja pipa:<br>$$\\frac{1}{6} + \\frac{1}{x} = \\frac{1}{4}$$<br>$$\\frac{1}{x} = \\frac{1}{4} - \\frac{1}{6} = \\frac{3}{12} - \\frac{2}{12} = \\frac{1}{12} \\rightarrow x = 12 \\text{ jam}$$."
+                },
+                {
+                    title: "Drill Soal Cerita 10",
+                    question: "Seorang pramuniaga menerima gaji pokok bulanan sebesar Rp1.500.000,00 ditambah komisi insentif sebesar Rp20.000,00 untuk setiap unit produk yang berhasil ia jual. Jika ia ingin memperoleh total penghasilan Rp2.300.000,00 bulan ini, berapa unit barang yang harus ia jual?",
+                    options: ["40 unit", "35 unit", "45 unit", "50 unit"],
+                    correct: "40 unit",
+                    explanation: "Misal jumlah unit terjual adalah $x$. Maka persamaan penghasilan bulanan:<br>$$1.500.000 + 20.000x = 2.300.000$$<br>$$20.000x = 800.000 \\rightarrow x = 40 \\text{ unit}$$."
+                }
+            ]
+        };
+
+        // --- 3. SYSTEM STATE ---
+        let currentMode = ''; 
+        let currentIdx = 0;
+        let scoreXP = 0;
+        let correctAnswersCount = 0;
+        let activeQuestionsList = [];
+        let chosenOptionElement = null;
+        let hasAnsweredCurrent = false; // Flag to track if user answered the current question
+
+        // Canvas Sketchpad State
+        const canvas = document.getElementById('scratch-canvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+
+        // Confetti Canvas State
+        const confettiCanvas = document.getElementById('confetti');
+        const confettiCtx = confettiCanvas.getContext('2d');
+        let confettiActive = false;
+        let particles = [];
+
+        // --- 4. SHUFFLE UTILITY ---
+        function shuffleArray(array) {
+            let shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        // --- 5. RUN ENGINE ON LOAD ---
+        window.onload = function() {
+            initCanvas();
+            setupTouchGestures();
+            backToHub();
+        };
+
+        // --- 6. NAVIGATION AND HUB CONTROLS ---
+        function startQuizMode(mode) {
+            playSound('click');
+            currentMode = mode;
+            currentIdx = 0;
+            correctAnswersCount = 0;
+            activeQuestionsList = [...questionDatabase[mode]]; 
+
+            // Switch layout views
+            document.getElementById('dashboard-view').classList.add('hidden');
+            document.getElementById('outcome-view').classList.add('hidden');
+            document.getElementById('quiz-view').classList.remove('hidden');
+
+            loadQuestion();
+        }
+
+        function backToHub() {
+            playSound('click');
+            document.getElementById('quiz-view').classList.add('hidden');
+            document.getElementById('outcome-view').classList.add('hidden');
+            document.getElementById('dashboard-view').classList.remove('hidden');
+        }
+
+        function restartCurrentQuiz() {
+            startQuizMode(currentMode);
+        }
+
+        // --- 7. LOAD AND RENDER PLSV QUESTIONS ---
+        function loadQuestion() {
+            const problem = activeQuestionsList[currentIdx];
+            hasAnsweredCurrent = false; // Reset answer status for the new question
+            
+            // Set header & indicators
+            document.getElementById('quiz-category-badge').innerText = currentMode === 'perhitungan' ? 'Drill Perhitungan' : 'Drill Soal Cerita';
+            document.getElementById('quiz-index-indicator').innerText = `Soal ${currentIdx + 1} / ${activeQuestionsList.length}`;
+            
+            // Progress Bar Width
+            const progressPercentage = ((currentIdx) / activeQuestionsList.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progressPercentage}%`;
+
+            // Render math problem
+            document.getElementById('problem-box').innerHTML = `
+                <h3 class="heading-font text-lg md:text-xl font-bold text-slate-800">${problem.title}</h3>
+                <p class="text-sm md:text-base text-gray-600 leading-relaxed">${problem.question}</p>
+            `;
+
+            // Suffle & Render Options
+            const grid = document.getElementById('options-grid');
+            grid.innerHTML = '';
+            
+            const shuffledOptions = shuffleArray(problem.options);
+            shuffledOptions.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "w-full p-4 bg-[#F5F3FF] hover:bg-indigo-50 border-2 border-[#C7D2FE] rounded-2xl text-xs md:text-sm font-bold text-indigo-950 transition btn-bounce flex justify-between items-center q-option-btn";
+                btn.innerHTML = `<span>${opt}</span><span class="opacity-50 text-[10px]">PILIH ➔</span>`;
+                btn.onclick = () => verifyUserResponse(btn, opt, problem.correct, problem.explanation);
+                grid.appendChild(btn);
+            });
+
+            // Hide Explanation block & Enable Skip / Next Button initially
+            document.getElementById('explanation-box').classList.add('hidden');
+            const nextBtn = document.getElementById('next-question-btn');
+            nextBtn.disabled = false;
+            nextBtn.innerText = "Lewati / Lanjut ▶";
+            nextBtn.className = "bg-gradient-to-r from-gray-400 to-gray-500 hover:from-gray-500 hover:to-gray-600 text-white font-extrabold px-6 py-2 rounded-xl text-xs md:text-sm shadow-md transition flex items-center gap-1 cursor-pointer";
+
+            // Trigger MathJax typeset parsing
+            if (window.MathJax) {
+                MathJax.typesetPromise();
+            }
+        }
+
+        // --- 8. ANSWER VERIFICATION & COMPARATIVE EXPLANATION ---
+        function verifyUserResponse(element, selectedValue, correctValue, explanationText) {
+            if (hasAnsweredCurrent) return; // Prevent double answering
+            hasAnsweredCurrent = true;
+
+            // Disable all other options
+            const options = document.querySelectorAll('.q-option-btn');
+            options.forEach(btn => {
+                btn.disabled = true;
+                btn.classList.add('opacity-40');
+            });
+
+            const isCorrect = selectedValue === correctValue;
+
+            // Highlight chosen option
+            element.classList.remove('opacity-40');
+            if (isCorrect) {
+                element.className = "w-full p-4 border-2 border-emerald-500 bg-emerald-100 text-emerald-800 rounded-2xl text-xs md:text-sm font-bold flex justify-between items-center";
+                element.innerHTML = `<span>${selectedValue}</span> <span class="bg-emerald-500 text-white px-2.5 py-1 rounded-lg text-[9px] font-extrabold">✓ BENAR! (+15 XP)</span>`;
+                playSound('correct');
+                scoreXP += 15;
+                correctAnswersCount++;
+                document.getElementById('score-display').innerText = `${scoreXP} XP`;
+                triggerConfetti();
+                showToast("✨ Jawabanmu benar! Sempurna!", "bg-emerald-500");
+            } else {
+                element.className = "w-full p-4 border-2 border-rose-500 bg-rose-100 text-rose-800 rounded-2xl text-xs md:text-sm font-bold flex justify-between items-center";
+                element.innerHTML = `<span>${selectedValue}</span> <span class="bg-rose-500 text-white px-2.5 py-1 rounded-lg text-[9px] font-extrabold">✕ SALAH</span>`;
+                playSound('incorrect');
+                showToast("💡 Belajar dari kesalahan! Pelajari cara cepat di bawah ini.", "bg-rose-500");
+            }
+
+            // Reveal detailed mathematical explanation card
+            const explanationBox = document.getElementById('explanation-box');
+            explanationBox.className = `mt-6 p-4 rounded-2xl text-xs md:text-sm leading-relaxed border-2 ${isCorrect ? 'border-emerald-200 bg-emerald-50/50 text-emerald-950' : 'border-rose-200 bg-rose-50/50 text-rose-950'} animate-fade-in`;
+            explanationBox.innerHTML = `
+                <div class="flex items-center gap-1.5 font-extrabold text-sm mb-1">
+                    <span>${isCorrect ? '🎉' : '💡'}</span> Pembahasan Langkah demi Langkah:
+                </div>
+                <div class="space-y-1">${explanationText}</div>
+            `;
+            explanationBox.classList.remove('hidden');
+
+            // Change Next Button style to Indigo indicating proceeding to the next question
+            const nextBtn = document.getElementById('next-question-btn');
+            nextBtn.innerText = "Soal Berikutnya ▶";
+            nextBtn.className = "bg-gradient-to-r from-[#6366F1] to-[#4F46E5] text-white hover:scale-105 font-extrabold px-6 py-2 rounded-xl text-xs md:text-sm shadow-md transition flex items-center gap-1 cursor-pointer";
+
+            // Trigger MathJax parsing on new elements
+            if (window.MathJax) {
+                MathJax.typesetPromise();
+            }
+        }
+
+        // --- 9. NEXT QUESTION OR SHOW OUTCOMES ---
+        function nextQuestion() {
+            playSound('click');
+            currentIdx++;
+            if (currentIdx < activeQuestionsList.length) {
+                loadQuestion();
+            } else {
+                showFinalOutcomes();
+            }
+        }
+
+        function showFinalOutcomes() {
+            document.getElementById('quiz-view').classList.add('hidden');
+            document.getElementById('outcome-view').classList.remove('hidden');
+
+            const accuracy = Math.round((correctAnswersCount / activeQuestionsList.length) * 100);
+            
+            // Render results statistics
+            document.getElementById('outcome-xp').innerText = `+${correctAnswersCount * 15} XP`;
+            document.getElementById('outcome-accuracy').innerText = `${accuracy}%`;
+
+            // Adaptive summary display text
+            const titleEl = document.getElementById('outcome-title');
+            const subtitleEl = document.getElementById('outcome-subtitle');
+            const emojiEl = document.getElementById('outcome-emoji');
+
+            if (accuracy === 100) {
+                emojiEl.innerText = "👑🏆";
+                titleEl.innerText = "Aljabar Grandmaster!";
+                subtitleEl.innerText = "Sempurna! Kamu menguasai semua tipe persoalan PLSV secara presisi.";
+                triggerConfetti();
+            } else if (accuracy >= 70) {
+                emojiEl.innerText = "😎🏅";
+                titleEl.innerText = "Sangat Hebat!";
+                subtitleEl.innerText = "Kamu memiliki logika pemecahan aljabar yang kuat dan terlatih.";
+                triggerConfetti();
+            } else {
+                emojiEl.innerText = "🤔🌱";
+                titleEl.innerText = "Kerja Bagus!";
+                subtitleEl.innerText = "Teruslah berlatih menggunakan Papan Cakar untuk memantapkan pemahaman aljabar.";
+            }
+        }
+
+        // --- 10. TOAST NOTIFIER HELPER ---
+        function showToast(text, bgClass) {
+            const toast = document.getElementById('toast');
+            const toastText = document.getElementById('toast-text');
+            toast.className = `fixed bottom-12 left-1/2 transform -translate-x-1/2 z-50 text-white font-black px-6 py-3.5 rounded-2xl shadow-xl flex items-center gap-2 animate-bounce ${bgClass}`;
+            toastText.innerHTML = text;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 5000);
+        }
+
+        // --- 11. DOODLE CANVAS SYSTEM (Scratchpad) ---
+        function toggleScratchpad() {
+            const pad = document.getElementById('scratchpad');
+            pad.classList.toggle('hidden');
+            if (!pad.classList.contains('hidden')) {
+                resizeCanvas();
+            }
+        }
+
+        function initCanvas() {
+            canvas.addEventListener('mousedown', (e) => {
+                isDrawing = true;
+                ctx.beginPath();
+                const r = canvas.getBoundingClientRect();
+                ctx.moveTo(e.clientX - r.left, e.clientY - r.top);
+            });
+            canvas.addEventListener('mousemove', (e) => {
+                if (!isDrawing) return;
+                const r = canvas.getBoundingClientRect();
+                ctx.lineTo(e.clientX - r.left, e.clientY - r.top);
+                ctx.stroke();
+            });
+            canvas.addEventListener('mouseup', () => isDrawing = false);
+
+            canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                isDrawing = true;
+                ctx.beginPath();
+                const t = e.touches[0];
+                const r = canvas.getBoundingClientRect();
+                ctx.moveTo(t.clientX - r.left, t.clientY - r.top);
+            });
+            canvas.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                if (!isDrawing) return;
+                const t = e.touches[0];
+                const r = canvas.getBoundingClientRect();
+                ctx.lineTo(t.clientX - r.left, t.clientY - r.top);
+                ctx.stroke();
+            });
+            canvas.addEventListener('touchend', () => isDrawing = false);
+        }
+
+        function resizeCanvas() {
+            const parent = canvas.parentNode;
+            canvas.width = parent.clientWidth;
+            canvas.height = parent.clientHeight;
+            ctx.lineCap = 'round';
+            ctx.lineWidth = 3.5;
+            ctx.strokeStyle = '#6366F1'; 
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // --- 12. SWIPE GESTURES ---
+        let startX = 0;
+        function setupTouchGestures() {
+            const wrapper = document.getElementById('quiz-view');
+            wrapper.addEventListener('touchstart', (e) => {
+                startX = e.changedTouches[0].screenX;
+            }, false);
+
+            wrapper.addEventListener('touchend', (e) => {
+                const endX = e.changedTouches[0].screenX;
+                const threshold = 80;
+                // Since "Next" is always enabled, swipe forward is always permitted
+                if (startX - endX > threshold) {
+                    nextQuestion();
+                }
+            }, false);
+        }
+
+        // --- 13. CONFETTI CELEBRATION EFFECTS ---
+        function triggerConfetti() {
+            confettiActive = true;
+            confettiCanvas.classList.remove('hidden');
+            confettiCanvas.width = window.innerWidth;
+            confettiCanvas.height = window.innerHeight;
+            
+            particles = [];
+            for (let i = 0; i < 75; i++) {
+                particles.push({
+                    x: Math.random() * confettiCanvas.width,
+                    y: Math.random() * confettiCanvas.height - confettiCanvas.height,
+                    r: Math.random() * 5 + 4,
+                    d: Math.random() * confettiCanvas.height,
+                    color: `hsl(${Math.random() * 360}, 100%, 70%)`,
+                    tilt: Math.random() * 10 - 5,
+                    tiltAngleIncremental: Math.random() * 0.07 + 0.02,
+                    tiltAngle: 0
+                });
+            }
+
+            animateConfetti();
+            setTimeout(() => {
+                confettiActive = false;
+                confettiCanvas.classList.add('hidden');
+            }, 2500);
+        }
+
+        function animateConfetti() {
+            if (!confettiActive) return;
+            confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+            
+            particles.forEach((p, idx) => {
+                p.tiltAngle += p.tiltAngleIncremental;
+                p.y += (Math.cos(p.d) + 3 + p.r / 2) / 2;
+                p.x += Math.sin(p.tiltAngle);
+                p.tilt = Math.sin(p.tiltAngle - idx / 3) * 15;
+
+                confettiCtx.beginPath();
+                confettiCtx.lineWidth = p.r;
+                confettiCtx.strokeStyle = p.color;
+                confettiCtx.moveTo(p.x + p.tilt + p.r / 2, p.y);
+                confettiCtx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
+                confettiCtx.stroke();
+            });
+
+            requestAnimationFrame(animateConfetti);
+        }
+    </script>
+</body>
+</html>
